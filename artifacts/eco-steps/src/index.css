@@ -191,6 +191,58 @@
   }
 }
 
+/* ── Game animations (CSS-only for GPU performance) ── */
+@keyframes water-flow {
+  0%   { background-position: 0 0; }
+  100% { background-position: 0 20px; }
+}
+
+@keyframes water-splash {
+  0%   { transform: scaleX(0.2); opacity: 0.8; }
+  60%  { transform: scaleX(1);   opacity: 0.5; }
+  100% { transform: scaleX(1.3); opacity: 0; }
+}
+
+@keyframes lamp-glow-pulse {
+  0%, 100% { box-shadow: 0 0 18px 6px rgba(255,220,50,0.55), 0 0 40px 14px rgba(255,200,30,0.25); }
+  50%       { box-shadow: 0 0 32px 14px rgba(255,230,70,0.8), 0 0 60px 24px rgba(255,210,40,0.4); }
+}
+
+@keyframes pulse-ring {
+  0%   { transform: scale(1);   opacity: 0.8; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+@keyframes float-up {
+  0%   { transform: translateY(0)  rotate(0deg);   opacity: 1; }
+  100% { transform: translateY(-60px) rotate(15deg); opacity: 0; }
+}
+
+@keyframes bounce-in {
+  0%   { transform: scale(0) rotate(-15deg); }
+  60%  { transform: scale(1.12) rotate(5deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+@keyframes child-wave {
+  0%, 100% { transform: rotate(-10deg); transform-origin: 80% 90%; }
+  50%       { transform: rotate(15deg);  transform-origin: 80% 90%; }
+}
+
+@keyframes drip-fall {
+  0%   { transform: translateY(0)   scaleY(0.5); opacity: 0; }
+  15%  { opacity: 1; }
+  100% { transform: translateY(70px) scaleY(1);   opacity: 0; }
+}
+
+.lamp-on  { animation: lamp-glow-pulse 1.8s ease-in-out infinite; }
+.water-stream {
+  animation: water-flow 0.22s linear infinite;
+  will-change: background-position;
+}
+.pulse-ring-anim { animation: pulse-ring 1.2s ease-out infinite; }
+.child-wave-anim { animation: child-wave 0.5s ease-in-out infinite; }
+
 /**
  * Using the elevate system.
  * Automatic contrast adjustment.
