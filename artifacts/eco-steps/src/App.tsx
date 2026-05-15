@@ -1,38 +1,91 @@
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import { useState } from "react";
 import { Toaster } from "sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { Layout } from "@/components/layout";
-import NotFound from "@/pages/not-found";
-import Home from "@/pages/home";
-import Challenges from "@/pages/challenges";
-import Profile from "@/pages/profile";
-import Recycling from "@/pages/recycling";
-import Leaderboard from "@/pages/leaderboard";
+import { MISSIONS, RECYCLING_QUIZ, GameScreen } from "@/data/game-data";
+import StartScreen from "@/screens/StartScreen";
+import MissionScreen from "@/screens/MissionScreen";
+import QuizIntroScreen from "@/screens/QuizIntroScreen";
+import QuizScreen from "@/screens/QuizScreen";
+import EndScreen from "@/screens/EndScreen";
 
-function Router() {
-  return (
-    <Layout>
-      <Switch>
-        <Route path="/" component={Home} />
-        <Route path="/challenges" component={Challenges} />
-        <Route path="/profile" component={Profile} />
-        <Route path="/recycling" component={Recycling} />
-        <Route path="/leaderboard" component={Leaderboard} />
-        <Route component={NotFound} />
-      </Switch>
-    </Layout>
-  );
-}
+export default function App() {
+  const [screen, setScreen] = useState<GameScreen>("start");
+  const [playerName, setPlayerName] = useState("");
+  const [missionIndex, setMissionIndex] = useState(0);
+  const [quizIndex, setQuizIndex] = useState(0);
+  const [totalPoints, setTotalPoints] = useState(0);
+  const [correctAnswers, setCorrectAnswers] = useState(0);
 
-function App() {
+  const handleStart = (name: string) => {
+    setPlayerName(name);
+    setMissionIndex(0);
+    setQuizIndex(0);
+    setTotalPoints(0);
+    setCorrectAnswers(0);
+    setScreen("mission");
+  };
+
+  const handleMissionComplete = (points: number) => {
+    const newPoints = totalPoints + points;
+    setTotalPoints(newPoints);
+    const next = missionIndex + 1;
+    if (next >= MISSIONS.length) {
+      setScreen("quiz-intro");
+    } else {
+      setMissionIndex(next);
+    }
+  };
+
+  const handleQuizAnswer = (correct: boolean) => {
+    const gained = correct ? 30 : 0;
+    setTotalPoints((p) => p + gained);
+    if (correct) setCorrectAnswers((c) => c + 1);
+    const next = quizIndex + 1;
+    if (next >= RECYCLING_QUIZ.length) {
+      setScreen("end");
+    } else {
+      setQuizIndex(next);
+    }
+  };
+
+  const handleRestart = () => {
+    setScreen("start");
+  };
+
   return (
-    <TooltipProvider>
-      <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-        <Router />
-      </WouterRouter>
+    <>
+      {screen === "start" && (
+        <StartScreen onStart={handleStart} />
+      )}
+      {screen === "mission" && (
+        <MissionScreen
+          playerName={playerName}
+          missionIndex={missionIndex}
+          totalPoints={totalPoints}
+          onComplete={handleMissionComplete}
+        />
+      )}
+      {screen === "quiz-intro" && (
+        <QuizIntroScreen
+          totalPoints={totalPoints}
+          onContinue={() => setScreen("quiz")}
+        />
+      )}
+      {screen === "quiz" && (
+        <QuizScreen
+          questionIndex={quizIndex}
+          totalPoints={totalPoints}
+          onAnswer={handleQuizAnswer}
+        />
+      )}
+      {screen === "end" && (
+        <EndScreen
+          playerName={playerName}
+          totalPoints={totalPoints}
+          correctAnswers={correctAnswers}
+          onRestart={handleRestart}
+        />
+      )}
       <Toaster richColors position="top-center" />
-    </TooltipProvider>
+    </>
   );
 }
-
-export default App;
