@@ -1,49 +1,38 @@
 import { useState } from "react";
 import { Toaster } from "sonner";
-import { MISSIONS, RECYCLING_QUIZ, GameScreen } from "@/data/game-data";
+import { SCENES } from "@/data/game-data";
 import StartScreen from "@/screens/StartScreen";
-import MissionScreen from "@/screens/MissionScreen";
-import QuizIntroScreen from "@/screens/QuizIntroScreen";
-import QuizScreen from "@/screens/QuizScreen";
+import SceneWrapper from "@/screens/SceneWrapper";
 import EndScreen from "@/screens/EndScreen";
+import LightsScene from "@/scenes/LightsScene";
+import TrashScene from "@/scenes/TrashScene";
+import TapsScene from "@/scenes/TapsScene";
+
+type Screen = "start" | "game" | "end";
+
+const MAX_POINTS = 260;
 
 export default function App() {
-  const [screen, setScreen] = useState<GameScreen>("start");
+  const [screen, setScreen] = useState<Screen>("start");
   const [playerName, setPlayerName] = useState("");
-  const [missionIndex, setMissionIndex] = useState(0);
-  const [quizIndex, setQuizIndex] = useState(0);
+  const [sceneIndex, setSceneIndex] = useState(0);
   const [totalPoints, setTotalPoints] = useState(0);
-  const [correctAnswers, setCorrectAnswers] = useState(0);
 
   const handleStart = (name: string) => {
     setPlayerName(name);
-    setMissionIndex(0);
-    setQuizIndex(0);
+    setSceneIndex(0);
     setTotalPoints(0);
-    setCorrectAnswers(0);
-    setScreen("mission");
+    setScreen("game");
   };
 
-  const handleMissionComplete = (points: number) => {
-    const newPoints = totalPoints + points;
-    setTotalPoints(newPoints);
-    const next = missionIndex + 1;
-    if (next >= MISSIONS.length) {
-      setScreen("quiz-intro");
-    } else {
-      setMissionIndex(next);
-    }
-  };
-
-  const handleQuizAnswer = (correct: boolean) => {
-    const gained = correct ? 30 : 0;
-    setTotalPoints((p) => p + gained);
-    if (correct) setCorrectAnswers((c) => c + 1);
-    const next = quizIndex + 1;
-    if (next >= RECYCLING_QUIZ.length) {
+  const handleSceneComplete = (points: number) => {
+    const newTotal = totalPoints + points;
+    setTotalPoints(newTotal);
+    const next = sceneIndex + 1;
+    if (next >= SCENES.length) {
       setScreen("end");
     } else {
-      setQuizIndex(next);
+      setSceneIndex(next);
     }
   };
 
@@ -51,40 +40,45 @@ export default function App() {
     setScreen("start");
   };
 
+  const currentScene = SCENES[sceneIndex];
+
+  const renderScene = () => {
+    const props = {
+      onComplete: handleSceneComplete,
+      totalPoints,
+      sceneIndex,
+      totalScenes: SCENES.length,
+    };
+    if (currentScene.id === "lights") return <LightsScene {...props} />;
+    if (currentScene.id === "trash") return <TrashScene {...props} />;
+    if (currentScene.id === "taps") return <TapsScene {...props} />;
+    return null;
+  };
+
   return (
     <>
-      {screen === "start" && (
-        <StartScreen onStart={handleStart} />
-      )}
-      {screen === "mission" && (
-        <MissionScreen
-          playerName={playerName}
-          missionIndex={missionIndex}
+      {screen === "start" && <StartScreen onStart={handleStart} />}
+
+      {screen === "game" && currentScene && (
+        <SceneWrapper
+          scene={currentScene}
+          sceneIndex={sceneIndex}
+          totalScenes={SCENES.length}
           totalPoints={totalPoints}
-          onComplete={handleMissionComplete}
-        />
+        >
+          {renderScene()}
+        </SceneWrapper>
       )}
-      {screen === "quiz-intro" && (
-        <QuizIntroScreen
-          totalPoints={totalPoints}
-          onContinue={() => setScreen("quiz")}
-        />
-      )}
-      {screen === "quiz" && (
-        <QuizScreen
-          questionIndex={quizIndex}
-          totalPoints={totalPoints}
-          onAnswer={handleQuizAnswer}
-        />
-      )}
+
       {screen === "end" && (
         <EndScreen
           playerName={playerName}
           totalPoints={totalPoints}
-          correctAnswers={correctAnswers}
+          maxPoints={MAX_POINTS}
           onRestart={handleRestart}
         />
       )}
+
       <Toaster richColors position="top-center" />
     </>
   );
