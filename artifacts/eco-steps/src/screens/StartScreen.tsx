@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Lang, TRANSLATIONS } from "@/i18n";
 
 interface Props {
@@ -15,42 +15,54 @@ const PARTICLES = [
 const MOZ_BLOG_POSTS = {
   pt: [
     {
-      title: "Maputo lança concurso de $10M para encerramento da Lixeira de Hulene",
-      tag: "♻️ RESÍDUOS",
+      title: "Município de Maputo lança concurso público para o encerramento da Lixeira de Hulene",
+      tag: "♻️ GESTÃO DE RESÍDUOS",
       img: "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=400&q=80",
       url: "https://www.diarioeconomico.co.mz/"
     },
     {
-      title: "FUNAE avança com eletrificação solar de 151 localidades em Nampula",
+      title: "FUNAE investe na eletrificação através de sistemas solares fotovoltaicos em Nampula",
       tag: "⚡ ENERGIA SOLAR",
       img: "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?auto=format&fit=crop&w=400&q=80",
-      url: "https://opais.co.mz/"
+      url: "https://www.funae.co.mz/"
     },
     {
-      title: "BIOFUND investe na conservação e restauração de mangais na Costa",
+      title: "BIOFUND investe no restauro e conservação de ecossistemas de mangais na costa nacional",
       tag: "🌿 BIODIVERSIDADE",
       img: "https://images.unsplash.com/photo-1621574539437-4b7cb63120b8?auto=format&fit=crop&w=400&q=80",
-      url: "https://www.biofund.org.mz/projects/restauracao-de-mangais/"
+      url: "https://www.biofund.org.mz/"
+    },
+    {
+      title: "Sistemas de monitoria de bacias hidrográficas são reforçados contra cheias e ciclones",
+      tag: "💧 RECURSOS HÍDRICOS",
+      img: "https://images.unsplash.com/photo-1468436139062-f60a71c5c892?auto=format&fit=crop&w=400&q=80",
+      url: "https://www.jornalnoticias.co.mz/"
     }
   ],
   en: [
     {
-      title: "Maputo launches $10M international tender to close Hulene landfill",
-      tag: "♻️ WASTE",
+      title: "Maputo municipality launches international tender to close down Hulene landfill",
+      tag: "♻️ WASTE MANAGEMENT",
       img: "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=400&q=80",
       url: "https://www.diarioeconomico.co.mz/"
     },
     {
-      title: "FUNAE accelerates off-grid solar infrastructure across 151 zones",
-      tag: "⚡ RENEWABLE",
+      title: "FUNAE drives off-grid rural electrification using solar infrastructure in Nampula",
+      tag: "⚡ RENEWABLE ENERGY",
       img: "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?auto=format&fit=crop&w=400&q=80",
-      url: "https://opais.co.mz/"
+      url: "https://www.funae.co.mz/"
     },
     {
-      title: "BIOFUND invests in mangrove restoration along Mozambican Coast",
+      title: "BIOFUND funds strategic preservation and mangrove restoration along the coastline",
       tag: "🌿 BIODIVERSITY",
       img: "https://images.unsplash.com/photo-1621574539437-4b7cb63120b8?auto=format&fit=crop&w=400&q=80",
-      url: "https://www.biofund.org.mz/en/projects/mangrove-restoration/"
+      url: "https://www.biofund.org.mz/en/"
+    },
+    {
+      title: "Hydrographic basin monitoring systems reinforced to prevent severe climate impacts",
+      tag: "💧 CLIMATE ACTION",
+      img: "https://images.unsplash.com/photo-1468436139062-f60a71c5c892?auto=format&fit=crop&w=400&q=80",
+      url: "https://www.jornalnoticias.co.mz/"
     }
   ]
 };
@@ -58,8 +70,10 @@ const MOZ_BLOG_POSTS = {
 export default function StartScreen({ onStart }: Props) {
   const [lang, setLang] = useState<Lang>("pt");
   const [name, setName] = useState("");
-  const t = TRANSLATIONS[lang];
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const isInteractingRef = useRef(false);
 
+  const t = TRANSLATIONS[lang];
   const canPlay = name.trim().length >= 2;
 
   const handleStart = () => {
@@ -67,12 +81,32 @@ export default function StartScreen({ onStart }: Props) {
     onStart(name.trim(), lang);
   };
 
-  // Triplicamos os itens para garantir preenchimento infinito contínuo sem saltos visuais
-  const tickerPosts = [
-    ...MOZ_BLOG_POSTS[lang], 
-    ...MOZ_BLOG_POSTS[lang], 
-    ...MOZ_BLOG_POSTS[lang]
-  ];
+  // Motor de Autoscroll Inteligente e de Baixo Consumo (60fps nativo)
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    let animationId: number;
+    
+    const scroll = () => {
+      // Se o usuário estiver tocando, arrastando ou com o mouse por cima, o script dá-lhe prioridade total
+      if (!isInteractingRef.current) {
+        container.scrollLeft += 0.8; // Velocidade suave e agradável
+
+        // Efeito infinito: quando chega perto do fim do bloco duplicado, volta ao início discretamente
+        if (container.scrollLeft >= container.scrollWidth / 2) {
+          container.scrollLeft = 0;
+        }
+      }
+      animationId = requestAnimationFrame(scroll);
+    };
+
+    animationId = requestAnimationFrame(scroll);
+    return () => cancelAnimationFrame(animationId);
+  }, [lang]);
+
+  // Duplicamos os artigos para garantir que o scroll infinito tenha conteúdo para preencher o ecrã
+  const doublePosts = [...MOZ_BLOG_POSTS[lang], ...MOZ_BLOG_POSTS[lang]];
 
   return (
     <div
@@ -82,15 +116,15 @@ export default function StartScreen({ onStart }: Props) {
         ["WebkitOverflowScrolling" as any]: "touch" 
       }}
     >
-      {/* ── FUNDO COM ACELERAÇÃO DE HARDWARE ── */}
+      {/* ── ACELERAÇÃO DE HARDWARE DO GRADIENTE ── */}
       <div 
-        className="absolute inset-0 z-0 bg-emerald-950 pointer-events-none will-change-transform"
+        className="absolute inset-0 z-0 bg-emerald-950 pointer-events-none transform-gpu"
         style={{
           background: "linear-gradient(135deg, #022c22 0%, #064e3b 40%, #0b6656 100%)",
         }} 
       />
 
-      {/* Partículas estáticas leves para poupar CPU/GPU */}
+      {/* Partículas estáticas ultra-leves */}
       {PARTICLES.map((p, i) => (
         <div 
           key={i}
@@ -127,7 +161,7 @@ export default function StartScreen({ onStart }: Props) {
         </div>
       </header>
 
-      {/* ── LAYOUT CENTRAL ULTRA COMPACTADO ── */}
+      {/* ── LAYOUT CENTRAL COMPACTO CANVA/PINTEREST ── */}
       <main className="w-full max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 z-10 relative items-stretch">
         
         {/* Painel Informativo Esquerdo */}
@@ -143,7 +177,7 @@ export default function StartScreen({ onStart }: Props) {
             </p>
           </div>
 
-          {/* MISSÕES CELULAR: Super pequenas, lado a lado sem desperdício */}
+          {/* MISSÕES EM GRID RESPONSIVO COMPACTO (Lado a lado no mobile) */}
           <div className="grid grid-cols-3 gap-2 md:gap-4">
             {t.missions.map((m, i) => (
               <div 
@@ -151,8 +185,8 @@ export default function StartScreen({ onStart }: Props) {
                 className="rounded-xl p-2.5 md:p-4 flex flex-col items-center text-center border border-white/5 bg-black/20 backdrop-blur-xs justify-center"
               >
                 <span className="text-2xl md:text-3xl mb-1 filter drop-shadow-sm">{m.icon}</span>
-                <div className="flex flex-col">
-                  <span className="font-black text-white text-[11px] md:text-sm tracking-tight truncate max-w-full">
+                <div className="flex flex-col min-w-0 w-full">
+                  <span className="font-black text-white text-[11px] md:text-sm tracking-tight truncate">
                     {m.title}
                   </span>
                   <span className="text-white/50 text-[9px] md:text-xs font-medium leading-tight mt-0.5 hidden sm:block">
@@ -164,7 +198,7 @@ export default function StartScreen({ onStart }: Props) {
           </div>
         </section>
 
-        {/* Caixa de Entrada Direta (Card Pro) */}
+        {/* Caixa de Entrada Direta (Card Pro de Acesso) */}
         <section className="lg:col-span-5 w-full flex">
           <div className="w-full bg-black/40 rounded-2xl p-5 flex flex-col justify-center gap-4 border border-white/10 shadow-xl backdrop-blur-md">
             <div className="text-center">
@@ -207,85 +241,81 @@ export default function StartScreen({ onStart }: Props) {
         </section>
       </main>
 
-      {/* ── NOTÍCIAS REAL-TIME: MOTOR CSS INFINITO DE ULTRA PERFORMANCE ── */}
+      {/* ── SECÇÃO DE NOTÍCIAS COM CONTROLO TÁTIL TOTAL SOBERBO ── */}
       <section className="w-full max-w-5xl mx-auto z-10 border-t border-white/10 pt-4 relative overflow-hidden">
-        <div className="flex items-center gap-1.5 mb-2.5 px-1">
-          <span className="text-xs">🇲🇿</span>
-          <h3 className="text-emerald-400 font-black text-[10px] md:text-xs uppercase tracking-widest">
-            {lang === "pt" ? "Evidências Ambientais em Moçambique" : "Environmental Evidence in Mozambique"}
-          </h3>
+        <div className="flex items-center gap-1.5 mb-2.5 px-1 justify-between">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs">🇲🇿</span>
+            <h3 className="text-emerald-400 font-black text-[10px] md:text-xs uppercase tracking-widest">
+              {lang === "pt" ? "Evidências Ambientais em Moçambique" : "Environmental Evidence in Mozambique"}
+            </h3>
+          </div>
+          <span className="text-white/30 font-bold text-[9px] uppercase tracking-wider bg-white/5 px-2 py-0.5 rounded-md">
+            {lang === "pt" ? "Arraste livremente" : "Swipe & Control"}
+          </span>
         </div>
 
-        {/* Marquee Nativo CSS Puro - Renderizado via GPU */}
-        <div className="w-full overflow-hidden relative marquee-container masking-edges">
-          <div className="flex gap-4 marquee-track">
-            {tickerPosts.map((post, idx) => (
-              <a 
-                key={idx}
-                href={post.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-[230px] md:w-[280px] shrink-0 bg-black/40 border border-white/5 rounded-xl overflow-hidden flex flex-col group hover:border-emerald-400/40 transition-colors"
-              >
-                {/* Imagem Otimizada */}
-                <div className="w-full h-24 md:h-28 overflow-hidden relative">
-                  <div 
-                    className="w-full h-full bg-cover bg-center"
-                    style={{ backgroundImage: `url(${post.img})` }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
-                  <span className="absolute top-2 left-2 bg-slate-950/80 font-black text-[8px] tracking-wider px-1.5 py-0.5 rounded text-white">
-                    {post.tag}
-                  </span>
-                </div>
+        {/* Contentor Táctil Interativo e Inteligente */}
+        <div 
+          ref={scrollContainerRef}
+          className="w-full overflow-x-auto pb-2 flex gap-4 custom-scrollbar-clean mask-edges snap-x md:snap-none"
+          // Eventos para pausar o autoscroll imediatamente durante interações físicas do usuário
+          onMouseEnter={() => { isInteractingRef.current = true; }}
+          onMouseLeave={() => { isInteractingRef.current = false; }}
+          onTouchStart={() => { isInteractingRef.current = true; }}
+          onTouchEnd={() => { isInteractingRef.current = false; }}
+        >
+          {doublePosts.map((post, idx) => (
+            <a 
+              key={idx}
+              href={post.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-[240px] md:w-[290px] shrink-0 bg-black/40 border border-white/5 rounded-xl overflow-hidden flex flex-col group hover:border-emerald-400/40 transition-colors snap-center"
+            >
+              {/* Imagem Proporcional Premium */}
+              <div className="w-full h-24 md:h-28 overflow-hidden relative">
+                <div 
+                  className="w-full h-full bg-cover bg-center"
+                  style={{ backgroundImage: `url(${post.img})` }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
+                <span className="absolute top-2 left-2 bg-slate-950/80 font-black text-[8px] tracking-wider px-1.5 py-0.5 rounded text-white">
+                  {post.tag}
+                </span>
+              </div>
 
-                {/* Bloco de Texto Ultra Compacto */}
-                <div className="p-3 flex flex-col justify-between flex-grow gap-2">
-                  <h4 className="text-white font-bold text-[11px] md:text-xs tracking-tight leading-snug line-clamp-2 group-hover:text-emerald-300 transition-colors">
-                    {post.title}
-                  </h4>
-                  <span className="text-emerald-400 font-black text-[9px] uppercase tracking-wider">
-                    {lang === "pt" ? "Ver mais ➔" : "Read more ➔"}
+              {/* Texto Compactado Profissional */}
+              <div className="p-3 flex flex-col justify-between flex-grow gap-2">
+                <h4 className="text-white font-bold text-[11px] md:text-xs tracking-tight leading-snug line-clamp-2 group-hover:text-emerald-300 transition-colors">
+                  {post.title}
+                </h4>
+                <span className="text-emerald-400 font-black text-[9px] uppercase tracking-wider">
+                  {lang === "pt" ? "Visitar portal ➔" : "Visit portal ➔"}
                   </span>
-                </div>
-              </a>
-            ))}
-          </div>
+              </div>
+            </a>
+          ))}
         </div>
       </section>
 
-      {/* ── RODAPÉ DISCRETO ── */}
+      {/* ── RODAPÉ DISCRETO CONTEXTUAL ── */}
       <footer className="w-full text-center z-10 pt-1 relative">
         <p className="text-white/20 italic text-[9px] md:text-xs max-w-md mx-auto px-4">
           {t.quote}
         </p>
       </footer>
 
-      {/* Estilos CSS Nativos injetados para animação via GPU perfeita sem JS */}
+      {/* Ocultação total da scrollbar e suavização de renderização no iOS/Android */}
       <style>{`
-        @keyframes marquee {
-          0% { transform: translate3d(0, 0, 0); }
-          100% { transform: translate3d(-33.333%, 0, 0); }
+        .custom-scrollbar-clean::-webkit-scrollbar { display: none; }
+        .custom-scrollbar-clean { 
+          -ms-overflow-style: none; 
+          scrollbar-width: none; 
         }
-        .marquee-container {
-          display: flex;
-          width: 100%;
-        }
-        .marquee-track {
-          display: flex;
-          animation: marquee 20s linear infinite;
-          will-change: transform;
-        }
-        /* Pausa suave ao passar o mouse apenas no Desktop para melhor UX */
-        @media (min-width: 768px) {
-          .marquee-container:hover .marquee-track {
-            animation-play-state: paused;
-          }
-        }
-        /* Máscara suave desvanecendo as bordas laterais do carrossel */
-        .masking-edges {
-          -webkit-mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
-          mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
+        .mask-edges {
+          -webkit-mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
+          mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
         }
       `}</style>
     </div>
