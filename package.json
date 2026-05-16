@@ -6,6 +6,7 @@
     "artifacts/eco-steps"
   ],
   "scripts": {
+    "build": "pnpm --filter eco-steps build",
     "typecheck": "npm run typecheck --workspaces --if-present"
   },
   "private": true,
