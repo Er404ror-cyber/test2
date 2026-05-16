@@ -67,7 +67,7 @@ const MOZ_BLOG_POSTS = {
     },
     {
       title: "BIOFUND invests in mangrove restoration and protection along Mozambican Coast",
-      tag: "🌿 BIODIVERSITY",
+      tag: "🌿 BIODIVERSIDADE",
       img: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80",
       url: "https://www.biofund.org.mz/en/projects/mangrove-restoration/"
     },
@@ -94,9 +94,12 @@ export default function StartScreen({ onStart }: Props) {
 
   return (
     <div
-      // Layout fluido com min-h-screen e flex-col. O scroll vertical agora responde instantaneamente no telemóvel.
       className="w-full min-h-screen relative overflow-x-hidden overflow-y-auto px-4 py-8 md:px-12 md:py-12 select-none bg-slate-950 flex flex-col gap-10 md:gap-16"
-      style={{ fontFamily: "Outfit, sans-serif", -webkit-overflow-scrolling: "touch" }}
+      // RESOLVIDO ts(2552): Chaves customizadas de CSS devem ser declaradas como string literal
+      style={{ 
+        fontFamily: "Outfit, sans-serif", 
+        ["WebkitOverflowScrolling" as any]: "touch" 
+      }}
     >
       {/* ── GRADIENTE DE FUNDO SUAVE ── */}
       <div 
@@ -112,7 +115,8 @@ export default function StartScreen({ onStart }: Props) {
           key={i}
           className="absolute pointer-events-none z-0 will-change-transform text-2xl opacity-10"
           style={{ left: `${p.x}%`, top: `${p.y}%` }}
-          animate={{ y: [-8, 8, -8] }}
+          // RESOLVIDO ts(2695): Strings evitam o falso positivo do operador de vírgula no compilador JSX
+          animate={{ y: ["-8px", "8px", "-8px"] }}
           transition={{ duration: p.d, repeat: Infinity, ease: "easeInOut" }}
         >
           {p.e}
@@ -156,12 +160,12 @@ export default function StartScreen({ onStart }: Props) {
             </h2>
             <p className="text-white/90 text-sm md:text-base mt-3 font-medium leading-relaxed">
               {lang === "pt" 
-                ? "Assume o controlo dos recursos naturais, toma decisões estratégicas em tempo real e evolui a tua comunidade rumo à sustentabilidade absoluta."
+                ? "Assume o controlo dos resources naturais, toma decisões estratégicas em tempo real e evolui a tua comunidade rumo à sustentabilidade absoluta."
                 : "Take absolute control over natural resources, execute real-time strategic decisions, and evolve your community toward total sustainability."}
             </p>
           </div>
 
-          {/* Missões do Jogo: Organização limpa e legível em qualquer ecrã */}
+          {/* Missões do Jogo */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-5">
             {t.missions.map((m, i) => (
               <div 
@@ -178,7 +182,7 @@ export default function StartScreen({ onStart }: Props) {
           </div>
         </section>
 
-        {/* Lado Direito: Caixa de Entrada do Utilizador */}
+        {/* Lado Direito: Entrada do Jogador */}
         <section className="lg:col-span-5 w-full">
           <div className="w-full bg-black/30 rounded-[2rem] p-6 md:p-8 flex flex-col gap-6 border border-white/20 shadow-2xl backdrop-blur-md">
             <div className="text-center">
@@ -223,7 +227,7 @@ export default function StartScreen({ onStart }: Props) {
         </section>
       </main>
 
-      {/* ── ECO-BLOG CANVA/PINTEREST: IMAGENS GRANDES E CASPANDO ATENÇÃO ── */}
+      {/* ── ECO-BLOG ESTILO PINTEREST/CANVA ── */}
       <section className="w-full max-w-6xl mx-auto z-10 border-t border-white/10 pt-10 relative">
         <div className="flex items-center gap-2.5 justify-center lg:justify-start mb-8">
           <span className="text-xl">🇲🇿</span>
@@ -232,7 +236,6 @@ export default function StartScreen({ onStart }: Props) {
           </h3>
         </div>
 
-        {/* Mobile: Scroll horizontal super responsivo e largo (85vw) | Desktop: Grid impecável de 3 colunas */}
         <div className="flex overflow-x-auto pb-6 px-1 gap-6 md:grid md:grid-cols-3 lg:grid-cols-3 w-full snap-x snap-mandatory scrollbar-none style-scroll">
           {MOZ_BLOG_POSTS[lang].map((post, idx) => (
             <a 
@@ -242,7 +245,6 @@ export default function StartScreen({ onStart }: Props) {
               rel="noopener noreferrer"
               className="min-w-[85vw] sm:min-w-[340px] md:min-w-0 bg-black/40 border border-white/10 rounded-2xl overflow-hidden shadow-xl flex flex-col justify-between group hover:border-emerald-400/50 transition-all cursor-pointer snap-start"
             >
-              {/* Imagem robusta (h-52 em tudo) com efeito Pinterest Zoom ao passar o rato no PC */}
               <div className="w-full h-52 md:h-56 overflow-hidden relative">
                 <div 
                   className="w-full h-full bg-cover bg-center transition-transform duration-500 ease-out group-hover:scale-105"
@@ -254,7 +256,6 @@ export default function StartScreen({ onStart }: Props) {
                 </span>
               </div>
 
-              {/* Corpo de texto confortável com ótimo contraste */}
               <div className="p-5 flex flex-col gap-4 justify-between flex-grow">
                 <h4 className="text-white font-bold text-sm md:text-base tracking-tight leading-snug line-clamp-3 group-hover:text-emerald-400 transition-colors">
                   {post.title}
@@ -276,7 +277,6 @@ export default function StartScreen({ onStart }: Props) {
         </p>
       </footer>
 
-      {/* Remove o scrollbar visual no mobile preservando o toque nativo ultra responsivo */}
       <style>{`
         .scrollbar-none::-webkit-scrollbar { display: none; }
         .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
