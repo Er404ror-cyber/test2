@@ -5,10 +5,11 @@
   "workspaces": [
     "artifacts/eco-steps"
   ],
-  "scripts": {
-    "build": "pnpm --filter eco-steps build",
-    "typecheck": "npm run typecheck --workspaces --if-present"
-  },
+ "scripts": {
+  "dev": "vite",
+  "build": "PORT=3000 vite build",
+  "preview": "vite preview"
+},
   "private": true,
   "devDependencies": {
     "typescript": "~5.9.3"
