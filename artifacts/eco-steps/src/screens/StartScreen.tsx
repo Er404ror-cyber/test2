@@ -7,50 +7,51 @@ interface Props {
 }
 
 const PARTICLES = [
-  { e: "💡", x: 4,  y: 8,  d: 4.5 },
-  { e: "🌿", x: 12, y: 72, d: 5.0 },
-  { e: "♻️", x: 25, y: 15, d: 4.8 },
-  { e: "💧", x: 45, y: 82, d: 4.2 },
-  { e: "🌍", x: 68, y: 10, d: 5.5 },
-  { e: "⚡", x: 88, y: 68, d: 4.0 },
-  { e: "🌱", x: 94, y: 25, d: 4.6 },
-  { e: "☀️", x: 52, y: 5,  d: 6.0 },
+  { e: "💡", x: 5,  y: 10, d: 4 },
+  { e: "🌿", x: 88, y: 15, d: 5 },
+  { e: "♻️", x: 15, y: 80, d: 4.5 },
+  { e: "💧", x: 82, y: 75, d: 3.5 },
 ];
 
-// Dados e Casos Reais com URLs de imagens reais de alta performance (Unsplash optimizadas)
 const MOZ_CONTEXT_2026 = {
   pt: [
     {
-      title: "Energia Solar (Metoro)",
-      desc: "Central fotovoltaica em Cabo Delgado expandindo a energia limpa e renovável no norte de Moçambique.",
-      img: "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=400&q=70"
+      title: "Energia Solar Metoro",
+      desc: "Central gigante em Cabo Delgado gerando energia limpa para milhares de famílias moçambicanas.",
+      img: "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=500&q=80",
+      tag: "⚡ ENERGIA"
     },
     {
-      title: "Proteção de Mangais",
-      desc: "Restauração ecológica costeira na Beira e Maputo para conter a erosão e proteger as comunidades.",
-      img: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=400&q=70"
+      title: "Mangais da Beira",
+      desc: "Plantação de árvores na costa para proteger a nossa linda cidade contra tempestades e erosão.",
+      img: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=500&q=80",
+      tag: "🌳 NATUREZA"
     },
     {
-      title: "Preservação da Água",
-      desc: "Sistemas inteligentes de captação e gestão hídrica nas bacias do sul para combater a seca extrema.",
-      img: "https://images.unsplash.com/photo-1488330890490-c291ecf62571?auto=format&fit=crop&w=400&q=70"
+      title: "Água no Sul",
+      desc: "Novos sistemas modernos captando e guardando água da chuva preciosa para combater a seca.",
+      img: "https://images.unsplash.com/photo-1488330890490-c291ecf62571?auto=format&fit=crop&w=500&q=80",
+      tag: "💧 RECURSOS"
     }
   ],
   en: [
     {
-      title: "Solar Energy (Metoro)",
-      desc: "Photovoltaic plant in Cabo Delgado expanding clean, renewable power infrastructure in northern Mozambique.",
-      img: "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=400&q=70"
+      title: "Metoro Solar Power",
+      desc: "Giant plant in Cabo Delgado providing clean, bright energy to thousands of Mozambican families.",
+      img: "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=500&q=80",
+      tag: "⚡ ENERGY"
     },
     {
-      title: "Mangrove Protection",
-      desc: "Coastal ecological restoration in Beira and Maputo to mitigate erosion and safeguard local communities.",
-      img: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=400&q=70"
+      title: "Beira Mangroves",
+      desc: "Planting coastal trees to protect our beautiful city from harsh storms and ocean erosion.",
+      img: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=500&—q=80",
+      tag: "🌳 NATUREZA"
     },
     {
-      title: "Water Preservation",
-      desc: "Smart water harvesting and management systems across southern basins to fight severe drought.",
-      img: "https://images.unsplash.com/photo-1488330890490-c291ecf62571?auto=format&fit=crop&w=400&q=70"
+      title: "Southern Water",
+      desc: "Modern systems catching and preserving precious rainwater to easily fight severe droughts.",
+      img: "https://images.unsplash.com/photo-1488330890490-c291ecf62571?auto=format&fit=crop&w=500&q=80",
+      tag: "💧 RESOURCES"
     }
   ]
 };
@@ -69,142 +70,123 @@ export default function StartScreen({ onStart }: Props) {
 
   return (
     <div
-      className="min-h-screen w-full flex flex-col relative overflow-y-auto overflow-x-hidden p-4 md:p-8 select-none justify-between"
+      className="min-h-screen w-full flex flex-col relative overflow-y-auto overflow-x-hidden p-4 md:p-8 select-none justify-between bg-slate-950"
       style={{ fontFamily: "Outfit, sans-serif" }}
     >
-      {/* ── BACKGROUND ORIGINAL PRESERVADO ── */}
-      <div className="absolute inset-0 z-0 bg-teal-900"
+      {/* ── SEU GRADIENTE ORIGINAL DE ALTA PERFORMANCE ── */}
+      <div className="absolute inset-0 z-0 bg-emerald-900"
         style={{
           background: "linear-gradient(145deg, #064e3b 0%, #065f46 20%, #0f766e 45%, #0369a1 75%, #1d4ed8 100%)",
         }} />
 
-      {/* Raios de luz sutis (Opacidade reduzida para melhor render de CPU) */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 opacity-40">
-        {[15, 45, 75].map((x, i) => (
-          <div key={i} className="absolute top-0 bottom-0 opacity-5"
+      {/* Raios de luz originais estilizados sem pesar na CPU */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 opacity-30">
+        {[20, 50, 80].map((x, i) => (
+          <div key={i} className="absolute top-0 bottom-0"
             style={{
               left: `${x}%`,
-              width: "clamp(60px,15vw,120px)",
-              background: "linear-gradient(180deg, rgba(255,255,255,0.8) 0%, transparent 100%)",
-              transform: "skewX(-12deg)",
+              width: "100px",
+              background: "linear-gradient(180deg, rgba(255,255,255,0.15) 0%, transparent 100%)",
+              transform: "skewX(-15deg)",
             }} />
         ))}
       </div>
 
-      {/* Partículas Flutuantes Otimizadas (Animações mais lentas reduzem o uso de GPU) */}
+      {/* Elementos Flutuantes Discretos e Leves */}
       {PARTICLES.map((p, i) => (
         <motion.div key={i}
-          className="absolute pointer-events-none select-none z-0 will-change-transform"
-          style={{ left: `${p.x}%`, top: `${p.y}%`, fontSize: "clamp(18px,3vw,26px)", opacity: 0.15 }}
-          animate={{ y: [-8, 8, -8] }}
-          transition={{ duration: p.d, repeat: Infinity, ease: "easeInOut", delay: i * 0.2 }}>
+          className="absolute pointer-events-none z-0 will-change-transform text-2xl opacity-25"
+          style={{ left: `${p.x}%`, top: `${p.y}%` }}
+          animate={{ y: [-6, 6, -6] }}
+          transition={{ duration: p.d, repeat: Infinity, ease: "easeInOut" }}>
           {p.e}
         </motion.div>
       ))}
 
-      {/* ── TOPO: Título e Seletor de Idioma ── */}
-      <header className="w-full max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center z-10 gap-4 mb-8 pt-safe">
-        <div className="text-center sm:text-left">
-          <h1 className="font-black text-white leading-none tracking-tight"
-            style={{ fontSize: "clamp(32px, 5vw, 46px)", textShadow: "0 2px 10px rgba(0,0,0,0.3)" }}>
+      {/* ── TOPO: Título Minimalista e Seletor ── */}
+      <header className="w-full max-w-6xl mx-auto flex justify-between items-center z-10 mb-6 pt-safe">
+        <div>
+          <h1 className="font-black text-white text-3xl md:text-4xl tracking-tight drop-shadow-md">
             EcoSteps
           </h1>
-          <AnimatePresence mode="wait">
-            <motion.p key={lang} initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              className="text-emerald-300 font-bold text-xs uppercase tracking-wider mt-1">
-              {t.tagline}
-            </motion.p>
-          </AnimatePresence>
+          <p className="text-emerald-300 font-extrabold text-[10px] md:text-xs uppercase tracking-widest mt-0.5">
+            {t.tagline}
+          </p>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-md p-1 rounded-full flex gap-1 border border-white/20 shadow-md">
+        <div className="bg-black/30 p-1 rounded-full flex gap-1 border border-white/10 shadow-lg">
           {(["pt", "en"] as Lang[]).map(l => (
             <button key={l} onClick={() => setLang(l)}
-              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full font-black text-xs transition-all duration-200 ${lang === l ? "bg-white text-emerald-900 shadow-lg" : "text-white/80 hover:bg-white/10"}`}>
-              <span>{l === "pt" ? "🇵🇹 PT" : "🇬🇧 EN"}</span>
+              className={`px-3 py-1 rounded-full font-black text-xs transition-all ${lang === l ? "bg-white text-emerald-950 shadow-md" : "text-white/70 hover:text-white"}`}>
+              {l === "pt" ? "🇲🇿 PT" : "🇬🇧 EN"}
             </button>
           ))}
         </div>
       </header>
 
-      {/* ── PAINEL PRINCIPAL: DIVIDIDO EM 2 COLUNAS (COMPUTADOR) OU VERTICAL (CELULAR) ── */}
-      <main className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 my-auto z-10 items-stretch">
+      {/* ── GRID PRINCIPAL DE EXPLORAÇÃO ── */}
+      <main className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 my-auto z-10 items-stretch">
         
-        {/* BLOCO 1: PILARES TEÓRICOS DA APRESENTAÇÃO (Esquerda - 7/12) */}
-        <section className="lg:col-span-7 xl:col-span-8 flex flex-col gap-6">
-          <div className="bg-black/20 backdrop-blur-md border border-white/10 rounded-3xl p-5 md:p-6 shadow-xl">
-            <div className="flex items-center gap-3 mb-2">
-              <span className="text-2xl">📢</span>
-              <h2 className="text-white font-black text-lg md:text-xl tracking-tight uppercase border-b-2 border-emerald-500 pb-1">
-                {lang === "pt" ? "Bloco 1: Introdução da Maquete" : "Block 1: Presentation Core"}
-              </h2>
-            </div>
-            <p className="text-white/80 text-sm leading-relaxed font-medium">
+        {/* BLOCO 1: PILARES DA MAQUETE (Esquerda - 7/12) */}
+        <section className="lg:col-span-7 flex flex-col justify-between gap-4">
+          <div className="bg-black/20 border border-white/10 rounded-2xl p-4 md:p-5">
+            <h2 className="text-white font-black text-base md:text-lg uppercase tracking-wider flex items-center gap-2">
+              <span>📢</span> {lang === "pt" ? "Como funciona a Maquete?" : "How the simulation works?"}
+            </h2>
+            <p className="text-white/80 text-xs md:text-sm mt-1 font-medium leading-relaxed">
               {lang === "pt" 
-                ? "Explicação conceitual rápida antes de iniciar os testes em simulação real:"
-                : "Quick conceptual framework explanation before launching the live simulation run:"}
+                ? "Mostre aos seus colegas como pequenas escolhas diárias alteram o ecossistema em tempo real:"
+                : "Show your classmates how daily small choices shift the ecosystem in real time:"}
             </p>
           </div>
 
-          {/* Grid dos Pilares Básicos */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {/* Os 3 Pilares com Visual Clean estilo Cartão */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {t.missions.map((m, i) => (
               <div key={`${lang}-${i}`}
-                className="rounded-2xl p-4 flex flex-col justify-between items-center text-center backdrop-blur-md border border-white/15 min-h-[150px] shadow-lg bg-white/5"
+                className="rounded-2xl p-4 flex flex-col items-center text-center border border-white/10 bg-black/15 shadow-md"
               >
-                <span className="filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.15)] mb-2" style={{ fontSize: "clamp(32px, 6vw, 42px)" }}>
-                  {m.icon}
-                </span>
+                <span className="text-3xl md:text-4xl mb-2 block filter drop-shadow-md">{m.icon}</span>
                 <div className="flex flex-col gap-0.5">
-                  <span className="font-black text-white text-xs md:text-sm tracking-tight leading-tight block">
-                    {m.title}
-                  </span>
-                  <span className="text-white/50 text-[10px] md:text-xs leading-tight font-medium block">
-                    {m.desc}
-                  </span>
+                  <span className="font-black text-white text-xs md:text-sm tracking-tight">{m.title}</span>
+                  <span className="text-white/50 text-[10px] md:text-xs font-medium leading-tight">{m.desc}</span>
                 </div>
               </div>
             ))}
           </div>
         </section>
 
-        {/* BLOCO 2: ÁREA DE EXECUÇÃO PRÁTICA DO JOGADOR (Direita - 5/12) */}
-        <section className="lg:col-span-5 xl:col-span-4 w-full">
-          <div className="w-full h-full bg-slate-900/40 backdrop-blur-xl rounded-[2.5rem] p-6 flex flex-col justify-center gap-5 border-2 border-emerald-500/40 shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
-            
-            <div className="bg-emerald-500 text-slate-950 font-black text-[10px] tracking-widest uppercase rounded-full px-4 py-1.5 w-max mx-auto shadow-md">
-              {lang === "pt" ? "Bloco 2: Iniciar Prática" : "Block 2: Run Simulation"}
-            </div>
-
+        {/* BLOCO 2: PORTAL DO JOGADOR - PRÁTICA (Direita - 5/12) */}
+        <section className="lg:col-span-5 w-full">
+          <div className="w-full h-full bg-black/30 rounded-[2rem] p-5 flex flex-col justify-center gap-4 border border-white/20 shadow-xl">
             <div className="text-center">
-              <h3 className="text-white font-black text-xl tracking-tight">
+              <span className="bg-emerald-400 text-slate-950 font-black text-[9px] tracking-widest uppercase rounded-full px-2.5 py-1 inline-block mb-2">
+                {lang === "pt" ? "PASSO PRÁTICO" : "PRACTICAL STEP"}
+              </span>
+              <h3 className="text-white font-black text-lg tracking-tight">
                 {lang === "pt" ? "Espaço do Jogador" : "Player Space"}
               </h3>
-              <p className="text-white/50 text-xs font-semibold mt-0.5">
-                {lang === "pt" ? "O voluntário ou colega insere o nome abaixo" : "The volunteer or classmate enters their name below"}
+              <p className="text-white/60 text-[11px] font-semibold">
+                {lang === "pt" ? "Quem vai testar a maquete coloca o nome abaixo:" : "Whoever is testing the model enters their name:"}
               </p>
             </div>
 
-            {/* Input Limpo e Otimizado */}
-            <div className="flex flex-col gap-1">
-              <input
-                type="text"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && handleStart()}
-                placeholder={lang === "pt" ? "Nome do Jogador..." : "Player Name..."}
-                maxLength={20}
-                className="w-full bg-black/40 text-white placeholder-white/20 font-black rounded-2xl px-4 py-3.5 text-center border border-white/10 focus:border-emerald-400 focus:outline-none transition-all shadow-inner text-base"
-                data-testid="input-player-name"
-              />
-            </div>
+            <input
+              type="text"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && handleStart()}
+              placeholder={lang === "pt" ? "Nome do Jogador..." : "Player Name..."}
+              maxLength={18}
+              className="w-full bg-black/40 text-white placeholder-white/25 font-black rounded-xl px-4 py-3 text-center border border-white/10 focus:border-emerald-400 focus:outline-none transition-all text-sm"
+              data-testid="input-player-name"
+            />
 
-            {/* Botão de Disparo do Simulador */}
             <motion.button
               onClick={handleStart}
               disabled={!canPlay}
               whileTap={canPlay ? { scale: 0.98 } : {}}
-              className="w-full rounded-2xl font-black text-white uppercase tracking-wider transition-all duration-150 disabled:opacity-20 disabled:cursor-not-allowed py-4 text-base shadow-lg cursor-pointer"
+              className="w-full rounded-xl font-black text-white uppercase tracking-wider transition-all py-3.5 text-sm shadow-md cursor-pointer"
               style={{
                 background: canPlay
                   ? "linear-gradient(135deg, #22c55e 0%, #10b981 50%, #0ea5e9 100%)"
@@ -213,40 +195,42 @@ export default function StartScreen({ onStart }: Props) {
               data-testid="button-start-game"
             >
               {canPlay 
-                ? (lang === "pt" ? "🎮 Rodar Simulação ➔" : "🎮 Run Simulation ➔") 
-                : (lang === "pt" ? "Inserir Nome do Jogador" : "Enter Player Name")
+                ? (lang === "pt" ? "🎮 Entrar e Jogar ➔" : "🎮 Enter & Play ➔") 
+                : (lang === "pt" ? "Aguardando Nome..." : "Waiting for Name...")
               }
             </motion.button>
           </div>
         </section>
       </main>
 
-      {/* ── BLOCO 3: CASOS REAIS DE MOÇAMBIQUE COM IMAGENS REAIS (Abaixo - Largura Total) ── */}
-      <section className="w-full max-w-7xl mx-auto z-10 mt-10 border-t-2 border-dashed border-white/10 pt-6">
-        <div className="flex items-center gap-2 mb-4 justify-center lg:justify-start">
-          <span className="text-xl">🇲🇿</span>
-          <h3 className="text-emerald-400 font-black text-xs md:text-sm uppercase tracking-widest">
-            {lang === "pt" ? "Bloco 3: Evidências e Casos Reais em Moçambique (2026)" : "Block 3: Real Evidence & Cases in Mozambique (2026)"}
-          </h3>
-        </div>
+      {/* ── BLOCO 3: CASOS REAIS DE MOÇAMBIQUE (CARROSSEL DESLIZÁVEL NO CELULAR) ── */}
+      <section className="w-full max-w-6xl mx-auto z-10 mt-6 border-t border-white/10 pt-4">
+        <h3 className="text-emerald-300 font-black text-[11px] md:text-xs uppercase tracking-widest mb-3 flex items-center gap-1.5 justify-center lg:justify-start">
+          <span>🇲🇿</span> {lang === "pt" ? "Exploração: Evidências em Moçambique (2026)" : "Exploration: Mozambique Evidence (2026)"}
+        </h3>
 
-        {/* Linha do Tempo/Grid de Evidências Otimizado */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Container Híbrido: Grid estável no PC, Carrossel horizontal deslizável nativo (`overflow-x-auto`) no Telemóvel */}
+        <div className="flex lg:grid lg:grid-cols-3 gap-4 overflow-x-auto pb-3 pt-1 px-1 snap-x snap-mandatory no-scrollbar w-full">
           {MOZ_CONTEXT_2026[lang].map((item, idx) => (
             <div 
               key={idx}
-              className="bg-black/30 backdrop-blur-sm border border-white/5 rounded-2xl p-3 flex flex-col sm:flex-row md:flex-col gap-3 items-center sm:items-start md:items-center shadow-lg"
+              className="bg-black/40 border border-white/5 rounded-2xl p-3 flex flex-col gap-3 min-w-[280px] sm:min-w-[320px] lg:min-w-0 snap-center shadow-lg transition-transform hover:scale-[1.01]"
             >
-              {/* Imagem Real de Alta Performance usando propriedades nativas CSS */}
+              {/* Imagem Real de Alta Performance */}
               <div 
-                className="w-full sm:w-32 md:w-full h-24 rounded-xl flex-shrink-0 bg-cover bg-center border border-white/10 shadow-inner"
+                className="w-full h-28 rounded-xl bg-cover bg-center border border-white/10 relative"
                 style={{ 
                   backgroundImage: `url(${item.img})`,
-                  contentVisibility: 'auto' // Otimização nativa de rendering de CPU para elementos fora de ecrã
+                  contentVisibility: 'auto'
                 }}
-              />
+              >
+                {/* Etiqueta de Categoria */}
+                <span className="absolute top-2 left-2 bg-black/60 text-white font-black text-[9px] px-2 py-0.5 rounded-md border border-white/10">
+                  {item.tag}
+                </span>
+              </div>
               
-              <div className="flex flex-col gap-1 w-full text-center sm:text-left md:text-center">
+              <div className="flex flex-col gap-0.5">
                 <h4 className="text-white font-extrabold text-xs md:text-sm tracking-tight">
                   {item.title}
                 </h4>
@@ -259,8 +243,8 @@ export default function StartScreen({ onStart }: Props) {
         </div>
       </section>
 
-      {/* ── CITAÇÃO DE RODAPÉ ── */}
-      <footer className="w-full text-center z-10 pt-8 pb-safe">
+      {/* ── FRRASE DE IMPACTO REINCORPORADA NO RODAPÉ ── */}
+      <footer className="w-full text-center z-10 pt-4 pb-safe">
         <p className="text-white/30 italic text-[10px] max-w-md mx-auto px-4">
           {t.quote}
         </p>
