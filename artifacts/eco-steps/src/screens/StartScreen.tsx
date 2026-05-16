@@ -1,27 +1,27 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Lang, TRANSLATIONS } from "@/i18n";
 
 interface Props {
   onStart: (name: string, lang: Lang) => void;
 }
 
-const AVATAR_OPTIONS = [
-  { emoji: "🦊", color: "linear-gradient(135deg, #f97316, #ea580c)" },
-  { emoji: "🐼", color: "linear-gradient(135deg, #64748b, #475569)" },
-  { emoji: "🐸", color: "linear-gradient(135deg, #22c55e, #16a34a)" },
-  { emoji: "🐨", color: "linear-gradient(135deg, #94a3b8, #64748b)" },
-  { emoji: "🦁", color: "linear-gradient(135deg, #eab308, #ca8a04)" },
-  { emoji: "🦄", color: "linear-gradient(135deg, #a855f7, #9333ea)" },
+const PARTICLES = [
+  { e: "💡", x: 4,  y: 8,  d: 3.2 },
+  { e: "🌿", x: 12, y: 72, d: 4.0 },
+  { e: "♻️", x: 25, y: 15, d: 3.6 },
+  { e: "💧", x: 45, y: 82, d: 2.8 },
+  { e: "🌍", x: 68, y: 10, d: 4.4 },
+  { e: "⚡", x: 88, y: 68, d: 3.0 },
+  { e: "🌱", x: 94, y: 25, d: 3.8 },
+  { e: "☀️", x: 52, y: 5,  d: 5.0 },
 ];
 
 export default function StartScreen({ onStart }: Props) {
   const [lang, setLang] = useState<Lang>("pt");
   const [name, setName] = useState("");
-  const [selectedAvatar, setSelectedAvatar] = useState(0);
   const t = TRANSLATIONS[lang];
 
-  const playSectionRef = useRef<HTMLDivElement>(null);
   const canPlay = name.trim().length >= 2;
 
   const handleStart = () => {
@@ -29,191 +29,183 @@ export default function StartScreen({ onStart }: Props) {
     onStart(name.trim(), lang);
   };
 
-  const scrollToPlay = () => {
-    playSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-  };
-
   return (
     <div
-      className="min-h-screen w-full relative overflow-y-auto overflow-x-hidden bg-slate-900 selection:bg-emerald-500/30"
+      className="min-h-screen w-full flex flex-col relative overflow-y-auto overflow-x-hidden p-4 md:p-8 select-none justify-between"
       style={{ fontFamily: "Outfit, sans-serif" }}
     >
-      {/* ── Fundo Dinâmico com Degradê Suave ── */}
-      <div className="absolute inset-0 z-0 bg-gradient-to-b from-teal-950 via-emerald-950 to-slate-950" />
+      {/* ── SEU BACKGROUND ORIGINAL REINTEGRADO ── */}
+      <div className="absolute inset-0 z-0"
+        style={{
+          background: "linear-gradient(145deg, #064e3b 0%, #065f46 20%, #0f766e 45%, #0369a1 75%, #1d4ed8 100%)",
+        }} />
 
-      {/* Seletor de Idioma Fixo no Topo */}
-      <div className="fixed top-4 right-4 z-50 bg-slate-900/60 backdrop-blur-md p-1 rounded-full border border-white/10 shadow-lg">
-        {(["pt", "en"] as Lang[]).map(l => (
-          <button key={l} onClick={() => setLang(l)}
-            className={`px-3 py-1 rounded-full font-black text-xs transition-all duration-300 ${lang === l ? "bg-emerald-500 text-slate-950 scale-100" : "text-white/70 hover:text-white"}`}>
-            <span>{l === "pt" ? "🇵🇹 PT" : "🇬🇧 EN"}</span>
-          </button>
+      {/* Raios de luz originais */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+        {[15, 45, 75].map((x, i) => (
+          <div key={i} className="absolute top-0 bottom-0 opacity-5"
+            style={{
+              left: `${x}%`,
+              width: "clamp(60px,15vw,120px)",
+              background: "linear-gradient(180deg, rgba(255,255,255,0.8) 0%, transparent 100%)",
+              transform: "skewX(-12deg)",
+            }} />
         ))}
       </div>
 
-      {/* Conteúdo da Jornada */}
-      <div className="relative z-10 max-w-md mx-auto px-4 pt-16 pb-24 flex flex-col items-center">
-        
-        {/* ── INTRODUÇÃO / PASSO 0 ── */}
-        <header className="text-center mb-12">
-          <motion.div
-            animate={{ y: [-6, 6, -6] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            className="text-7xl mb-4 filter drop-shadow-[0_10px_20px_rgba(16,185,129,0.3)]"
-          >
-            🌍
-          </motion.div>
-          <h1 className="font-black text-white tracking-tight text-5xl mb-2 drop-shadow-md">
+      {/* Partículas flutuantes originais */}
+      {PARTICLES.map((p, i) => (
+        <motion.div key={i}
+          className="absolute pointer-events-none select-none z-0"
+          style={{ left: `${p.x}%`, top: `${p.y}%`, fontSize: "clamp(20px,3.5vw,30px)", opacity: 0.18 }}
+          animate={{ y: [-10, 10, -10], rotate: [-6, 6, -6] }}
+          transition={{ duration: p.d, repeat: Infinity, delay: i * 0.55 }}>
+          {p.e}
+        </motion.div>
+      ))}
+
+      {/* ── TOPO: Título Principal e Seletor de Idioma ── */}
+      <header className="w-full max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center z-10 gap-4 mb-6 md:mb-10 pt-safe">
+        <div className="text-center sm:text-left">
+          <h1 className="font-black text-white leading-none tracking-tight shadow-sm"
+            style={{ fontSize: "clamp(32px, 5vw, 48px)", textShadow: "0 2px 10px rgba(0,0,0,0.3)" }}>
             EcoSteps
           </h1>
-          <p className="text-emerald-300 font-extrabold text-sm uppercase tracking-wider px-4">
-            {t.tagline}
-          </p>
-          
-          <motion.button 
-            onClick={scrollToPlay}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="mt-6 bg-white/10 hover:bg-white/15 text-white/90 font-bold text-xs px-4 py-2.5 rounded-full border border-white/10 transition-all flex items-center gap-2 mx-auto"
-          >
-            <span>{lang === "pt" ? "Pular Exploração" : "Skip Exploration"}</span>
-            <span className="text-[10px]">👇</span>
-          </motion.button>
-        </header>
+          <AnimatePresence mode="wait">
+            <motion.p key={lang} initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              className="text-emerald-300 font-bold text-xs md:text-sm uppercase tracking-wider mt-1">
+              {t.tagline}
+            </motion.p>
+          </AnimatePresence>
+        </div>
 
-        {/* Linha Conectora Pontilhada Visual */}
-        <div className="w-0.5 h-10 border-l-2 border-dashed border-emerald-500/30 mb-6" />
-
-        {/* ── SECCÃO 1: APRENDER (As Missões como Cards de Conhecimento) ── */}
-        <section className="w-full flex flex-col gap-8 items-center mb-16">
-          <div className="text-center bg-emerald-500/10 border border-emerald-500/20 rounded-2xl px-4 py-2 mb-2">
-            <span className="text-emerald-400 font-black text-xs uppercase tracking-widest">
-              {lang === "pt" ? "Passo 1: Aprender a Missão 🧠" : "Step 1: Learn the Mission 🧠"}
-            </span>
-          </div>
-
-          {t.missions.map((m, i) => (
-            <div key={`${lang}-${i}`} className="w-full flex flex-col items-center relative">
-              <motion.div
-                initial={{ opacity: 0, x: i % 2 === 0 ? -30 : 30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: "-60px" }}
-                transition={{ type: "spring", bounce: 0.2 }}
-                className="w-full bg-slate-800/80 border border-slate-700 backdrop-blur-md rounded-3xl p-5 flex items-start gap-4 shadow-xl hover:border-emerald-500/30 transition-colors"
-              >
-                <div className="w-14 h-14 bg-slate-700/50 rounded-2xl flex items-center justify-center text-3xl shrink-0 border border-slate-600/50 shadow-inner">
-                  {m.icon}
-                </div>
-                <div className="flex flex-col gap-1">
-                  <h3 className="font-black text-white text-base leading-snug">
-                    {m.title}
-                  </h3>
-                  <p className="text-slate-400 text-xs font-medium leading-relaxed">
-                    {m.desc}
-                  </p>
-                </div>
-              </motion.div>
-              
-              {/* Linha conectora entre os cards */}
-              {i < t.missions.length - 1 && (
-                <div className="w-0.5 h-8 border-l-2 border-dashed border-emerald-500/20 my-2" />
-              )}
-            </div>
+        {/* Seletor de Idioma Profissional */}
+        <div className="bg-white/10 backdrop-blur-md p-1 rounded-full flex gap-1 border border-white/20 shadow-md">
+          {(["pt", "en"] as Lang[]).map(l => (
+            <button key={l} onClick={() => setLang(l)}
+              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full font-black text-xs transition-all duration-200 ${lang === l ? "bg-white text-emerald-900 shadow-lg" : "text-white/80 hover:bg-white/10"}`}>
+              <span>{l === "pt" ? "🇵🇹 PT" : "🇬🇧 EN"}</span>
+            </button>
           ))}
-        </section>
+        </div>
+      </header>
 
-        {/* Linha Conectora Pontilhada Principal */}
-        <div className="w-0.5 h-14 border-l-2 border-dashed border-emerald-400/40 mb-6 animate-pulse" />
-
-        {/* ── SECÇÃO 2: JOGAR (Zona de Identificação Lá em Baixo) ── */}
-        <section 
-          ref={playSectionRef}
-          className="w-full bg-gradient-to-b from-slate-800 to-slate-950 rounded-[2.5rem] p-6 flex flex-col gap-6 border-2 border-emerald-500/30 shadow-[0_20px_50px_rgba(16,185,129,0.15)] relative scroll-mt-24"
-        >
-          {/* Badge de Conclusão do Aprendizado */}
-          <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-500 text-slate-950 font-black text-xs uppercase tracking-wider px-4 py-1.5 rounded-full shadow-lg whitespace-nowrap">
-            {lang === "pt" ? "✅ Aprendizado Concluído!" : "✅ Learning Complete!"}
-          </div>
-
-          <div className="text-center mt-2">
-            <h2 className="text-white font-black text-xl">
-              {lang === "pt" ? "Pronto para o Jogo?" : "Ready to Play?"}
-            </h2>
-            <p className="text-slate-400 text-xs font-semibold mt-0.5">
-              {lang === "pt" ? "Cria o teu perfil para começar a aventura" : "Create your profile to start the adventure"}
+      {/* ── CORPO: Distribuição Responsiva de Espaço (Lado a Lado no PC) ── */}
+      <main className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 my-auto z-10 items-center">
+        
+        {/* COLUNA DA ESQUERDA (7/12 de Espaço no PC): Painel de Explicação Visual do Sobrinho */}
+        <section className="lg:col-span-7 xl:col-span-8 flex flex-col gap-6">
+          
+          {/* Introdução Dinâmica à Apresentação */}
+          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-5 md:p-6 shadow-xl">
+            <div className="flex items-center gap-3 mb-3">
+              <span className="text-3xl animate-bounce">📢</span>
+              <h2 className="text-white font-black text-xl md:text-2xl tracking-tight">
+                {lang === "pt" ? "Porquê o EcoSteps é importante?" : "Why EcoSteps matters?"}
+              </h2>
+            </div>
+            <p className="text-white/80 text-sm leading-relaxed font-medium">
+              {lang === "pt" 
+                ? "Cada pequena ação nossa conta para salvar o planeta. Abaixo estão os pilares práticos que aprendemos hoje e que vamos simular diretamente dentro do simulador interativo!"
+                : "Every single action counts toward saving our planet. Below are the core pillars we are learning today and will test directly inside the simulation environment!"}
             </p>
           </div>
 
-          {/* Escolha do Avatar */}
-          <div className="flex flex-col gap-2.5">
-            <label className="text-slate-300 font-extrabold text-xs text-center uppercase tracking-wider">
-              {lang === "pt" ? "Escolhe o teu herói:" : "Choose your hero:"}
-            </label>
-            <div className="flex justify-center gap-2 py-1 overflow-x-auto no-scrollbar">
-              {AVATAR_OPTIONS.map((av, idx) => (
-                <motion.button
-                  key={idx}
-                  type="button"
-                  onClick={() => setSelectedAvatar(idx)}
-                  whileHover={{ scale: 1.15 }}
-                  whileTap={{ scale: 0.9 }}
-                  className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl transition-all duration-300 ${selectedAvatar === idx ? "ring-4 ring-emerald-400 scale-110 shadow-lg" : "opacity-40 grayscale-[20%] hover:opacity-80"}`}
-                  style={{ background: av.color }}
-                >
-                  {av.emoji}
-                </motion.button>
-              ))}
-            </div>
-          </div>
+          {/* Grid de Pilares Visuais - Super limpo e focado no Impacto Visual */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {t.missions.map((m, i) => (
+              <motion.div key={`${lang}-${i}`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.15, type: "spring" }}
+                whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                className="rounded-2xl p-5 flex flex-col justify-between items-center text-center backdrop-blur-md border transition-all duration-300 min-h-[160px] md:min-h-[180px] shadow-lg"
+                style={{
+                  background: ["rgba(99,102,241,0.22)", "rgba(16,185,129,0.22)", "rgba(14,165,233,0.22)"][i],
+                  borderColor: ["rgba(165,180,252,0.3)", "rgba(110,231,183,0.3)", "rgba(125,211,252,0.3)"][i],
+                }}>
+                
+                {/* Ícone Gigante para Apoio Visual na Explicação */}
+                <span className="filter drop-shadow-[0_4px_8px_rgba(0,0,0,0.2)] mb-2" style={{ fontSize: "clamp(36px, 8vw, 48px)" }}>
+                  {m.icon}
+                </span>
 
-          {/* Nome do Jogador */}
-          <div className="flex flex-col gap-1.5">
-            <input
-              type="text"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && handleStart()}
-              placeholder={lang === "pt" ? "O teu nome de Explorador..." : "Your Explorer name..."}
-              maxLength={15}
-              className="w-full bg-slate-900/80 text-white placeholder-slate-600 font-black rounded-2xl px-4 py-3.5 text-center border border-slate-700 focus:border-emerald-500 focus:outline-none transition-all shadow-inner text-base"
-              data-testid="input-player-name"
-            />
-            <AnimatePresence>
-              {name.trim().length === 1 && (
-                <motion.span initial={{ opacity: 0, y: 3 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                  className="text-amber-400 font-bold text-[11px] text-center block">
-                  {lang === "pt" ? "Escreve mais um bocadinho! 😉" : "Type a bit more! 😉"}
-                </motion.span>
-              )}
-            </AnimatePresence>
+                <div className="flex flex-col gap-1">
+                  <span className="font-black text-white text-sm md:text-base tracking-tight leading-tight block">
+                    {m.title}
+                  </span>
+                  <span className="text-white/60 text-[11px] md:text-xs leading-snug font-medium block">
+                    {m.desc}
+                  </span>
+                </div>
+              </motion.div>
+            ))}
           </div>
-
-          {/* Botão de Start de Aventura */}
-          <motion.button
-            onClick={handleStart}
-            disabled={!canPlay}
-            whileTap={canPlay ? { scale: 0.96 } : {}}
-            whileHover={canPlay ? { scale: 1.02 } : {}}
-            className="w-full rounded-2xl font-black text-white uppercase tracking-wider transition-all duration-300 disabled:opacity-20 disabled:cursor-not-allowed py-4 text-lg border-b-4 border-emerald-700 shadow-lg cursor-pointer"
-            style={{
-              background: canPlay
-                ? "linear-gradient(135deg, #4ade80 0%, #10b981 50%, #06b6d4 100%)"
-                : "rgba(255,255,255,0.05)",
-            }}
-            data-testid="button-start-game"
-          >
-            {canPlay 
-              ? (lang === "pt" ? "🚀 Entrar no Jogo!" : "🚀 Enter Game!") 
-              : (lang === "pt" ? "Bloqueado 🔒" : "Locked 🔒")
-            }
-          </motion.button>
         </section>
 
-        {/* Citação Inspiracional de Rodapé */}
-        <footer className="text-center mt-12 text-slate-500 font-medium text-xs max-w-xs px-4">
-          🍃 {t.quote}
-        </footer>
-      </div>
+        {/* COLUNA DA DIREITA (5/12 de Espaço no PC): Painel de Execução Prática (O Jogo) */}
+        <section className="lg:col-span-5 xl:col-span-4 w-full">
+          <div className="w-full bg-white/12 backdrop-blur-xl rounded-[2.5rem] p-6 flex flex-col gap-5 border border-white/20 shadow-[0_20px_40px_rgba(0,0,0,0.3)] relative overflow-hidden">
+            
+            {/* Banner decorativo sutil indicando Prática */}
+            <div className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-black text-[10px] tracking-widest uppercase rounded-full px-3 py-1 w-max mx-auto">
+              {lang === "pt" ? "Demonstração Prática" : "Live Practical Demo"}
+            </div>
+
+            <div className="text-center">
+              <h3 className="text-white font-black text-xl tracking-tight">
+                {lang === "pt" ? "Iniciar o Simulador" : "Launch Simulator"}
+              </h3>
+              <p className="text-white/60 text-xs font-semibold mt-0.5">
+                {lang === "pt" ? "Insira o nome para validar a simulação" : "Enter a name to validate the test run"}
+              </p>
+            </div>
+
+            {/* Input Simplificado e Moderno (Estilo Clean sem Avatar) */}
+            <div className="flex flex-col gap-1.5">
+              <input
+                type="text"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleStart()}
+                placeholder={lang === "pt" ? "Nome do Apresentador / Turma" : "Presenter or Class Name..."}
+                maxLength={20}
+                className="w-full bg-black/20 text-white placeholder-white/30 font-black rounded-2xl px-4 py-3.5 text-center border-2 border-white/10 focus:border-white/40 focus:bg-black/30 focus:outline-none transition-all shadow-inner text-base"
+                data-testid="input-player-name"
+              />
+            </div>
+
+            {/* Botão de Ignição do Jogo */}
+            <motion.button
+              onClick={handleStart}
+              disabled={!canPlay}
+              whileTap={canPlay ? { scale: 0.97 } : {}}
+              whileHover={canPlay ? { scale: 1.02 } : {}}
+              className="w-full rounded-2xl font-black text-white uppercase tracking-wider transition-all duration-200 disabled:opacity-20 disabled:cursor-not-allowed py-4 text-base shadow-lg cursor-pointer"
+              style={{
+                background: canPlay
+                  ? "linear-gradient(135deg, #22c55e 0%, #10b981 50%, #0ea5e9 100%)"
+                  : "rgba(255,255,255,0.08)",
+                boxShadow: canPlay ? "0 8px 24px rgba(34,197,94,0.35), inset 0 1px 0 rgba(255,255,255,0.2)" : "none",
+              }}
+              data-testid="button-start-game"
+            >
+              {canPlay 
+                ? (lang === "pt" ? "🎮 Entrar na Prática ➔" : "🎮 Launch Practice ➔") 
+                : (lang === "pt" ? "Insira o Nome" : "Enter Name")
+              }
+            </motion.button>
+          </div>
+        </section>
+
+      </main>
+
+      {/* ── RODAPÉ ── */}
+      <footer className="w-full text-center z-10 pt-6 pb-safe">
+        <p className="text-white/40 italic text-center text-[11px] md:text-xs max-w-md mx-auto px-4">
+          {t.quote}
+        </p>
+      </footer>
     </div>
   );
 }
