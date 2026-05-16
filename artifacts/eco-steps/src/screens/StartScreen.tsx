@@ -1,5 +1,5 @@
-import { motion } from "framer-motion";
-import { useState } from "react";
+import { motion, useAnimationControls } from "framer-motion";
+import { useState, useEffect } from "react";
 import { Lang, TRANSLATIONS } from "@/i18n";
 
 interface Props {
@@ -16,66 +16,54 @@ const PARTICLES = [
 const MOZ_BLOG_POSTS = {
   pt: [
     {
-      title: "Maputo lança concurso de $10M para encerramento da Lixeira de Hulene",
-      tag: "♻️ RESÍDUOS",
-      img: "https://images.unsplash.com/photo-1562071707-7249ab429b2a?auto=format&fit=crop&w=800&q=80",
-      url: "https://www.diarioeconomico.co.mz/2025/01/21/desenvolvimento-2/maputo-municipio-lanca-concurso-de-10-m-para-encerramento-da-lixeira-de-hulene/"
+      title: "Maputo avança com plano estratégico focado no encerramento definitivo da Lixeira de Hulene",
+      tag: "♻️ GESTÃO DE RESÍDUOS",
+      img: "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=800&q=80",
+      url: "https://www.diarioeconomico.co.mz/"
     },
     {
-      title: "FUNAE avança com eletrificação solar de 151 localidades em Nampula",
-      tag: "⚡ ENERGIA SOLAR",
-      img: "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=800&q=80",
-      url: "https://mznews.co.mz/funae-preve-electrificar-151-localidades-com-energia-solar-em-nampula/"
+      title: "FUNAE expande redes de eletrificação através de novas centrais solares na província de Nampula",
+      tag: "⚡ ENERGIA RENOVÁVEL",
+      img: "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?auto=format&fit=crop&w=800&q=80",
+      url: "https://opais.co.mz/"
     },
     {
-      title: "Governo e INGD ativam Plano de Contingência contra eventos extremos",
-      tag: "💧 RECURSOS HÍDRICOS",
-      img: "https://images.unsplash.com/photo-1613446409605-be1fcffb8ff4?auto=format&fit=crop&w=800&q=80",
-      url: "https://ingd.gov.mz/wp-content/uploads/2025/10/PC-2025-26-CM.pdf"
-    },
-    {
-      title: "BIOFUND investe na conservação e restauração de mangais na Costa Moçambicana",
+      title: "BIOFUND garante financiamento histórico para proteção e restauro de mangais na Costa Moçambicana",
       tag: "🌿 BIODIVERSIDADE",
-      img: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80",
+      img: "https://images.unsplash.com/photo-1621574539437-4b7cb63120b8?auto=format&fit=crop&w=800&q=80",
       url: "https://www.biofund.org.mz/projects/restauracao-de-mangais/"
     },
     {
-      title: "Projecto MozParks impulsiona eco-parques industriais sustentáveis",
-      tag: "🏭 INDÚSTRIA VERDE",
-      img: "https://images.unsplash.com/photo-1516937941344-00b4e0337589?auto=format&fit=crop&w=800&q=80",
-      url: "https://mozparks.co.mz/"
+      title: "MTA e INGD reforçam sistemas de monitoria de bacias hidrográficas contra eventos climáticos extremos",
+      tag: "💧 RECURSOS HÍDRICOS",
+      img: "https://images.unsplash.com/photo-1468436139062-f60a71c5c892?auto=format&fit=crop&w=800&q=80",
+      url: "https://opais.co.mz/"
     }
   ],
   en: [
     {
-      title: "Maputo launches $10M international tender to close Hulene landfill",
-      tag: "♻️ WASTE",
-      img: "https://images.unsplash.com/photo-1562071707-7249ab429b2a?auto=format&fit=crop&w=800&q=80",
-      url: "https://www.diarioeconomico.co.mz/2025/01/21/desenvolvimento-2/maputo-municipio-lanca-concurso-de-10-m-para-encerramento-da-lixeira-de-hulene/"
+      title: "Maputo moves forward with strategic blueprint targeted at closing the Hulene landfill",
+      tag: "♻️ WASTE MANAGEMENT",
+      img: "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=800&q=80",
+      url: "https://www.diarioeconomico.co.mz/"
     },
     {
-      title: "FUNAE accelerates off-grid solar infrastructure across 151 rural zones",
+      title: "FUNAE accelerates off-grid modern solar mini-grids expansion across Nampula communities",
       tag: "⚡ RENEWABLE ENERGY",
-      img: "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=800&q=80",
-      url: "https://mznews.co.mz/funae-preve-electrificar-151-localidades-com-energia-solar-em-nampula/"
+      img: "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?auto=format&fit=crop&w=800&q=80",
+      url: "https://opais.co.mz/"
     },
     {
-      title: "INGD triggers Climate Contingency Plan for water management and safety",
-      tag: "💧 CLIMATE ACTION",
-      img: "https://images.unsplash.com/photo-1613446409605-be1fcffb8ff4?auto=format&fit=crop&w=800&q=80",
-      url: "https://ingd.gov.mz/wp-content/uploads/2025/10/PC-2025-26-CM.pdf"
-    },
-    {
-      title: "BIOFUND invests in mangrove restoration and protection along Mozambican Coast",
-      tag: "🌿 BIODIVERSIDADE",
-      img: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80",
+      title: "BIOFUND establishes landmark funding for mangrove protection across the Mozambican Coastline",
+      tag: "🌿 BIODIVERSITY",
+      img: "https://images.unsplash.com/photo-1621574539437-4b7cb63120b8?auto=format&fit=crop&w=800&q=80",
       url: "https://www.biofund.org.mz/en/projects/mangrove-restoration/"
     },
     {
-      title: "MozParks Project drives eco-friendly development in green industrial parks",
-      tag: "🏭 GREEN INDUSTRY",
-      img: "https://images.unsplash.com/photo-1516937941344-00b4e0337589?auto=format&fit=crop&w=800&q=80",
-      url: "https://mozparks.co.mz/"
+      title: "MTA and INGD scale up real-time river basin monitoring against severe climate impact events",
+      tag: "💧 CLIMATE ACTION",
+      img: "https://images.unsplash.com/photo-1468436139062-f60a71c5c892?auto=format&fit=crop&w=800&q=80",
+      url: "https://opais.co.mz/"
     }
   ]
 };
@@ -83,6 +71,7 @@ const MOZ_BLOG_POSTS = {
 export default function StartScreen({ onStart }: Props) {
   const [lang, setLang] = useState<Lang>("pt");
   const [name, setName] = useState("");
+  const [isHovered, setIsHovered] = useState(false);
   const t = TRANSLATIONS[lang];
 
   const canPlay = name.trim().length >= 2;
@@ -92,20 +81,22 @@ export default function StartScreen({ onStart }: Props) {
     onStart(name.trim(), lang);
   };
 
+  // Duplicamos a lista para criar o efeito infinito sem quebras visuais no Ticker
+  const tickerPosts = [...MOZ_BLOG_POSTS[lang], ...MOZ_BLOG_POSTS[lang]];
+
   return (
     <div
-      className="w-full min-h-screen relative overflow-x-hidden overflow-y-auto px-4 py-8 md:px-12 md:py-12 select-none bg-slate-950 flex flex-col gap-10 md:gap-16"
-      // RESOLVIDO ts(2552): Chaves customizadas de CSS devem ser declaradas como string literal
+      className="w-full min-h-screen relative overflow-x-hidden overflow-y-auto px-4 py-12 md:px-16 md:py-20 select-none bg-slate-950 flex flex-col gap-14 md:gap-24"
       style={{ 
         fontFamily: "Outfit, sans-serif", 
         ["WebkitOverflowScrolling" as any]: "touch" 
       }}
     >
-      {/* ── GRADIENTE DE FUNDO SUAVE ── */}
+      {/* ── GRADIENTE DE FUNDO ULTRA PREMIUM ── */}
       <div 
         className="absolute inset-0 z-0 bg-emerald-950 pointer-events-none"
         style={{
-          background: "linear-gradient(145deg, #022c22 0%, #064e3b 25%, #0d9488 60%, #0284c7 100%)",
+          background: "linear-gradient(150deg, #022c22 0%, #044e3a 30%, #0b7a69 65%, #0369a1 100%)",
         }} 
       />
 
@@ -113,34 +104,33 @@ export default function StartScreen({ onStart }: Props) {
       {PARTICLES.map((p, i) => (
         <motion.div 
           key={i}
-          className="absolute pointer-events-none z-0 will-change-transform text-2xl opacity-10"
+          className="absolute pointer-events-none z-0 will-change-transform text-3xl opacity-15"
           style={{ left: `${p.x}%`, top: `${p.y}%` }}
-          // RESOLVIDO ts(2695): Strings evitam o falso positivo do operador de vírgula no compilador JSX
-          animate={{ y: ["-8px", "8px", "-8px"] }}
+          animate={{ y: ["-10px", "10px", "-10px"] }}
           transition={{ duration: p.d, repeat: Infinity, ease: "easeInOut" }}
         >
           {p.e}
         </motion.div>
       ))}
 
-      {/* ── TOPO: CABEÇALHO DO JOGO ── */}
+      {/* ── TOPO: CABEÇALHO AMPLO ── */}
       <header className="w-full max-w-6xl mx-auto flex justify-between items-center z-10 pt-safe relative">
-        <div>
-          <h1 className="font-black text-white text-3xl md:text-5xl tracking-tight drop-shadow-md">
+        <div className="flex flex-col gap-1.5">
+          <h1 className="font-black text-white text-4xl md:text-6xl tracking-tight drop-shadow-lg">
             EcoSteps
           </h1>
-          <p className="text-emerald-300 font-extrabold text-[10px] md:text-sm uppercase tracking-widest mt-1">
+          <p className="text-emerald-300 font-black text-xs md:text-sm uppercase tracking-widest">
             {lang === "pt" ? "🕹️ Jogo de Estratégia Sustentável" : "🕹️ Sustainable Strategy Game"}
           </p>
         </div>
 
-        <div className="bg-black/30 p-1.5 rounded-full flex gap-1 border border-white/10 shadow-xl backdrop-blur-md">
+        <div className="bg-black/40 p-2 rounded-full flex gap-1.5 border border-white/10 shadow-2xl backdrop-blur-xl">
           {(["pt", "en"] as Lang[]).map(l => (
             <button 
               key={l} 
               onClick={() => setLang(l)}
-              className={`px-4 py-1.5 rounded-full font-black text-xs md:text-sm transition-all cursor-pointer ${
-                lang === l ? "bg-white text-emerald-950 shadow-md" : "text-white/70 hover:text-white"
+              className={`px-5 py-2 rounded-full font-black text-xs md:text-sm transition-all cursor-pointer ${
+                lang === l ? "bg-white text-emerald-950 shadow-md scale-105" : "text-white/70 hover:text-white"
               }`}
             >
               {l === "pt" ? "🇲🇿 PT" : "🇬🇧 EN"}
@@ -149,47 +139,47 @@ export default function StartScreen({ onStart }: Props) {
         </div>
       </header>
 
-      {/* ── CENTRO: PAINEL DE JOGO DE ALTO IMPACTO ── */}
-      <main className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 z-10 relative items-start">
+      {/* ── CENTRO: PAINEL PRINCIPAL DE JOGO ── */}
+      <main className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 z-10 relative items-start">
         
         {/* Lado Esquerdo: Detalhes da Simulação */}
-        <section className="lg:col-span-7 flex flex-col gap-6 md:gap-8 w-full">
-          <div className="bg-black/20 border border-white/10 rounded-2xl p-6 md:p-8 backdrop-blur-md shadow-lg">
-            <h2 className="text-white font-black text-lg md:text-2xl uppercase tracking-wider flex items-center gap-2.5">
+        <section className="lg:col-span-7 flex flex-col gap-8 md:gap-10 w-full">
+          <div className="bg-black/25 border border-white/10 rounded-3xl p-8 md:p-10 backdrop-blur-md shadow-xl">
+            <h2 className="text-white font-black text-xl md:text-3xl uppercase tracking-wider flex items-center gap-3">
               <span>🎮</span> {lang === "pt" ? "A Simulação Interativa" : "The Interactive Simulation"}
             </h2>
-            <p className="text-white/90 text-sm md:text-base mt-3 font-medium leading-relaxed">
+            <p className="text-white/90 text-base md:text-lg mt-4 font-medium leading-relaxed">
               {lang === "pt" 
-                ? "Assume o controlo dos resources naturais, toma decisões estratégicas em tempo real e evolui a tua comunidade rumo à sustentabilidade absoluta."
+                ? "Assume o controlo dos recursos naturais, toma decisões estratégicas em tempo real e evolui a tua comunidade rumo à sustentabilidade absoluta."
                 : "Take absolute control over natural resources, execute real-time strategic decisions, and evolve your community toward total sustainability."}
             </p>
           </div>
 
-          {/* Missões do Jogo */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-5">
+          {/* Missões do Jogo com Grid Confortável */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 md:gap-6">
             {t.missions.map((m, i) => (
               <div 
                 key={`${lang}-${i}`}
-                className="rounded-2xl p-6 flex flex-col items-center text-center border border-white/10 bg-black/20 shadow-lg backdrop-blur-sm"
+                className="rounded-3xl p-6 md:p-8 flex flex-col items-center text-center border border-white/10 bg-black/25 shadow-xl backdrop-blur-sm hover:border-emerald-400/30 transition-all"
               >
-                <span className="text-4xl mb-3 block filter drop-shadow-md">{m.icon}</span>
-                <div className="flex flex-col gap-1">
-                  <span className="font-black text-white text-base tracking-tight">{m.title}</span>
-                  <span className="text-white/60 text-xs font-medium leading-snug mt-1">{m.desc}</span>
+                <span className="text-5xl mb-4 block filter drop-shadow-md">{m.icon}</span>
+                <div className="flex flex-col gap-1.5">
+                  <span className="font-black text-white text-base md:text-lg tracking-tight">{m.title}</span>
+                  <span className="text-white/60 text-xs md:text-sm font-medium leading-relaxed mt-1">{m.desc}</span>
                 </div>
               </div>
             ))}
           </div>
         </section>
 
-        {/* Lado Direito: Entrada do Jogador */}
+        {/* Lado Direito: Entrada e Login */}
         <section className="lg:col-span-5 w-full">
-          <div className="w-full bg-black/30 rounded-[2rem] p-6 md:p-8 flex flex-col gap-6 border border-white/20 shadow-2xl backdrop-blur-md">
+          <div className="w-full bg-black/35 rounded-[2.5rem] p-8 md:p-10 flex flex-col gap-8 border border-white/20 shadow-2xl backdrop-blur-md">
             <div className="text-center">
-              <span className="bg-emerald-400 text-slate-950 font-black text-[10px] tracking-widest uppercase rounded-full px-3 py-1 inline-block mb-2 shadow-sm">
+              <span className="bg-emerald-400 text-slate-950 font-black text-xs tracking-widest uppercase rounded-full px-4 py-1.5 inline-block mb-3 shadow-md">
                 {lang === "pt" ? "PRONTO PARA JOGAR" : "READY TO LOG IN"}
               </span>
-              <h3 className="text-white font-black text-xl md:text-2xl tracking-tight">
+              <h3 className="text-white font-black text-2xl md:text-3xl tracking-tight">
                 {lang === "pt" ? "Painel do Jogador" : "Player Portal"}
               </h3>
             </div>
@@ -201,16 +191,16 @@ export default function StartScreen({ onStart }: Props) {
               onKeyDown={e => e.key === "Enter" && handleStart()}
               placeholder={lang === "pt" ? "Nome do Jogador..." : "Player Name..."}
               maxLength={16}
-              className="w-full bg-black/50 text-white placeholder-white/30 font-bold rounded-xl px-4 py-4 text-center border border-white/10 focus:border-emerald-400 focus:outline-none transition-all text-sm md:text-base shadow-inner"
+              className="w-full bg-black/60 text-white placeholder-white/30 font-bold rounded-2xl px-5 py-5 text-center border border-white/10 focus:border-emerald-400 focus:outline-none transition-all text-base md:text-lg shadow-inner"
               data-testid="input-player-name"
             />
 
             <motion.button
               onClick={handleStart}
               disabled={!canPlay}
-              whileHover={canPlay ? { scale: 1.01 } : {}}
-              whileTap={canPlay ? { scale: 0.99 } : {}}
-              className="w-full rounded-xl font-black text-white uppercase tracking-wider transition-all py-4 text-sm md:text-base shadow-lg cursor-pointer"
+              whileHover={canPlay ? { scale: 1.02 } : {}}
+              whileTap={canPlay ? { scale: 0.98 } : {}}
+              className="w-full rounded-2xl font-black text-white uppercase tracking-wider transition-all py-5 text-base md:text-lg shadow-2xl cursor-pointer"
               style={{
                 background: canPlay
                   ? "linear-gradient(135deg, #10b981 0%, #059669 50%, #0284c7 100%)"
@@ -227,59 +217,86 @@ export default function StartScreen({ onStart }: Props) {
         </section>
       </main>
 
-      {/* ── ECO-BLOG ESTILO PINTEREST/CANVA ── */}
-      <section className="w-full max-w-6xl mx-auto z-10 border-t border-white/10 pt-10 relative">
-        <div className="flex items-center gap-2.5 justify-center lg:justify-start mb-8">
-          <span className="text-xl">🇲🇿</span>
-          <h3 className="text-emerald-400 font-black text-xs md:text-base uppercase tracking-widest">
-            {lang === "pt" ? "Contexto Real: Evidências Ambientais em Moçambique" : "Real Context: Environmental Evidence in Mozambique"}
-          </h3>
+      {/* ── ECO-NEWS: MARQUEE/CAROUSEL INFINITO INTEGRADO ── */}
+      <section className="w-full z-10 border-t border-white/10 pt-14 relative overflow-hidden">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 px-4">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl filter drop-shadow-sm">🇲🇿</span>
+            <h3 className="text-emerald-400 font-black text-sm md:text-lg uppercase tracking-widest text-center sm:text-left">
+              {lang === "pt" ? "Notícias Reais: Evidências Ambientais em Moçambique" : "Real News: Environmental Evidence in Mozambique"}
+            </h3>
+          </div>
+          {/* Indicador visual de gesto para Mobile */}
+          <span className="text-white/40 font-bold text-xs bg-white/5 px-3 py-1 rounded-full block md:hidden animate-pulse">
+            {lang === "pt" ? "← Deslize para ver mais →" : "← Swipe to view more →"}
+          </span>
         </div>
 
-        <div className="flex overflow-x-auto pb-6 px-1 gap-6 md:grid md:grid-cols-3 lg:grid-cols-3 w-full snap-x snap-mandatory scrollbar-none style-scroll">
-          {MOZ_BLOG_POSTS[lang].map((post, idx) => (
-            <a 
-              key={idx}
-              href={post.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="min-w-[85vw] sm:min-w-[340px] md:min-w-0 bg-black/40 border border-white/10 rounded-2xl overflow-hidden shadow-xl flex flex-col justify-between group hover:border-emerald-400/50 transition-all cursor-pointer snap-start"
-            >
-              <div className="w-full h-52 md:h-56 overflow-hidden relative">
-                <div 
-                  className="w-full h-full bg-cover bg-center transition-transform duration-500 ease-out group-hover:scale-105"
-                  style={{ backgroundImage: `url(${post.img})` }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-transparent" />
-                <span className="absolute top-3 left-3 bg-slate-950/90 font-black text-[9px] md:text-[10px] tracking-wider px-2.5 py-1 rounded-md text-white border border-white/10">
-                  {post.tag}
-                </span>
-              </div>
+        {/* Container Global do Slider */}
+        <div 
+          className="w-full overflow-x-auto md:overflow-x-hidden pb-4 custom-scrollbar"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          {/* No Desktop vira uma Track de movimento infinito; no Mobile é um scroll por toque flexível */}
+          <motion.div 
+            className="flex gap-6 w-max px-4 md:px-0"
+            animate={typeof window !== "undefined" && window.innerWidth >= 768 ? {
+              x: isHovered ? undefined : ["0%", "-50%"]
+            } : {}}
+            transition={{
+              ease: "linear",
+              duration: 32,
+              repeat: Infinity
+            }}
+          >
+            {tickerPosts.map((post, idx) => (
+              <a 
+                key={idx}
+                href={post.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-[85vw] sm:w-[380px] md:w-[420px] bg-black/40 border border-white/10 rounded-3xl overflow-hidden shadow-xl flex flex-col justify-between group hover:border-emerald-400/60 transition-all cursor-pointer select-none"
+              >
+                {/* Imagem maior e mais alta (h-60) estilo Canva/Pinterest com Zoom suave */}
+                <div className="w-full h-56 md:h-60 overflow-hidden relative">
+                  <div 
+                    className="w-full h-full bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-105"
+                    style={{ backgroundImage: `url(${post.img})` }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-transparent" />
+                  <span className="absolute top-4 left-4 bg-slate-950/90 font-black text-[10px] md:text-xs tracking-wider px-3 py-1.5 rounded-lg text-white border border-white/10">
+                    {post.tag}
+                  </span>
+                </div>
 
-              <div className="p-5 flex flex-col gap-4 justify-between flex-grow">
-                <h4 className="text-white font-bold text-sm md:text-base tracking-tight leading-snug line-clamp-3 group-hover:text-emerald-400 transition-colors">
-                  {post.title}
-                </h4>
-                
-                <span className="text-emerald-400 font-black text-xs uppercase tracking-wider flex items-center gap-1 mt-auto pt-2">
-                  {lang === "pt" ? "Ler notícia completa ➔" : "Read full article ➔"}
-                </span>
-              </div>
-            </a>
-          ))}
+                {/* Bloco de texto otimizado para fácil leitura */}
+                <div className="p-6 flex flex-col gap-5 justify-between flex-grow">
+                  <h4 className="text-white font-bold text-base md:text-lg tracking-tight leading-snug line-clamp-3 group-hover:text-emerald-300 transition-colors">
+                    {post.title}
+                  </h4>
+                  
+                  <span className="text-emerald-400 font-black text-xs md:text-sm uppercase tracking-wider flex items-center gap-1.5 mt-auto pt-3">
+                    {lang === "pt" ? "Ler artigo oficial ➔" : "Read official article ➔"}
+                  </span>
+                </div>
+              </a>
+            ))}
+          </motion.div>
         </div>
       </section>
 
-      {/* ── RODAPÉ CONTEXTUAL ── */}
-      <footer className="w-full text-center z-10 pt-4 pb-safe relative">
-        <p className="text-white/30 italic text-[10px] md:text-xs max-w-md mx-auto px-4">
+      {/* ── RODAPÉ CONTEXTUAL AREJADO ── */}
+      <footer className="w-full text-center z-10 pt-6 pb-safe relative">
+        <p className="text-white/30 italic text-xs max-w-xl mx-auto px-6 leading-relaxed">
           {t.quote}
         </p>
       </footer>
 
+      {/* Utilitários CSS injetados para ocultação de scrollbar e refinamento nativo */}
       <style>{`
-        .scrollbar-none::-webkit-scrollbar { display: none; }
-        .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+        .custom-scrollbar::-webkit-scrollbar { display: none; }
+        .custom-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
     </div>
   );
