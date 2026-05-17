@@ -17,9 +17,9 @@ export default function SceneWrapper({
   const t = TRANSLATIONS[lang];
 
   return (
-    <div className="flex flex-col w-full h-screen overflow-hidden" style={{ fontFamily: "Outfit, sans-serif" }}>
+    <div className="flex flex-col w-full h-screen overflow-hidden bg-slate-950" style={{ fontFamily: "Outfit, sans-serif" }}>
       {/* Top bar */}
-      <div className={`bg-gradient-to-r ${scene.bgColor} px-4 py-2.5 flex items-center gap-3 shadow-lg z-30`}>
+      <div className={`bg-gradient-to-r ${scene.bgColor} px-4 py-2.5 flex items-center gap-3 shadow-lg z-30 transform-gpu`}>
         <div className="flex-1 min-w-0">
           <p className="text-white/65 font-bold uppercase tracking-wider truncate"
             style={{ fontSize: "clamp(9px,1.8vw,11px)" }}>
@@ -30,7 +30,7 @@ export default function SceneWrapper({
           </h2>
         </div>
         <motion.div key={totalPoints} initial={{ scale: 1.4 }} animate={{ scale: 1 }}
-          className="flex-shrink-0 bg-white/20 backdrop-blur rounded-2xl px-3 py-1.5">
+          className="flex-shrink-0 bg-black/30 backdrop-blur rounded-2xl px-3 py-1.5 border border-white/10">
           <span className="text-yellow-200 font-black" style={{ fontSize: "clamp(11px,2.6vw,14px)" }}>
             ⭐ {totalPoints} {t.points}
           </span>

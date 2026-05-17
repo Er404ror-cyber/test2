@@ -12,6 +12,24 @@ const PARTICLES = [
   { e: "💧", x: 88, y: 70 },
 ];
 
+// Dicas diárias e Fatos sobre Animais sugeridos
+const ECO_INSIGHTS = {
+  pt: [
+    { type: "💡 DICA DO DIA", text: "Que tal limpar a praia ou o teu bairro hoje? Pequenos gestos mudam o ecossistema!" },
+    { type: "💧 POUPANÇA", text: "Fechar a torneira enquanto escovas os dentes poupa até 12 litros de água de cada vez." },
+    { type: "🐢 BIODIVERSIDADE", text: "Milhares de tartarugas marinhas morrem por ano ao confundir sacos plásticos com alforrecas (águas-vivas). Reduz o uso de plástico!" },
+    { type: "🦏 FAUNA EM PERIGO", text: "O rinoceronte e os elefantes africanos sofrem com a perda de habitat. Apoiar o consumo sustentável protege as florestas deles." },
+    { type: "⚡ ENERGIA", text: "Desliga os aparelhos da tomada em modo 'standby'. Eles consomem até 12% da energia da tua casa à toa." }
+  ],
+  en: [
+    { type: "💡 TIP OF THE DAY", text: "How about cleaning a local beach or your neighborhood today? Small actions change ecosystems!" },
+    { type: "💧 WATER SAVING", text: "Turning off the tap while brushing your teeth saves up to 12 liters of water each time." },
+    { type: "🐢 BIODIVERSITY", text: "Thousands of sea turtles die every year by mistaking plastic bags for jellyfish. Reduce plastic use!" },
+    { type: "🦏 WILDLIFE ALERT", text: "African rhinos and elephants suffer from habitat loss. Supporting sustainable consumption protects their forests." },
+    { type: "⚡ ENERGY", text: "Unplug devices left on 'standby'. They account for up to 12% of your home's electricity bill." }
+  ]
+};
+
 const MOZ_BLOG_POSTS = {
   pt: [
     {
@@ -70,6 +88,10 @@ const MOZ_BLOG_POSTS = {
 export default function StartScreen({ onStart }: Props) {
   const [lang, setLang] = useState<Lang>("pt");
   const [name, setName] = useState("");
+  const [showerTime, setShowerTime] = useState<number | "">("");
+  const [showerFeedback, setShowerFeedback] = useState("");
+  const [currentInsightIdx, setCurrentInsightIdx] = useState(0);
+  
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isInteractingRef = useRef(false);
 
@@ -81,19 +103,39 @@ export default function StartScreen({ onStart }: Props) {
     onStart(name.trim(), lang);
   };
 
-  // Motor de Autoscroll Inteligente e de Baixo Consumo (60fps nativo)
+  // Carrossel automático para as dicas e fatos motivacionais
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentInsightIdx((prev) => (prev + 1) % ECO_INSIGHTS[lang].length);
+    }, 7000); // Muda a cada 7 segundos de forma suave
+    return () => clearInterval(interval);
+  }, [lang]);
+
+  // Lógica interativa do banho (Feedback imediato)
+  useEffect(() => {
+    if (showerTime === "") {
+      setShowerFeedback("");
+      return;
+    }
+    const mins = Number(showerTime);
+    if (mins <= 5) {
+      setShowerFeedback(lang === "pt" ? "🏆 Incrível! Banho super ecológico. Continua assim!" : "🏆 Amazing! Eco-friendly shower. Keep it up!");
+    } else if (mins <= 10) {
+      setShowerFeedback(lang === "pt" ? "👍 Moderado. Se conseguires reduzir 2 minutos, poupas imensa água." : "👍 Moderate. If you can cut 2 minutes, you save a lot of water.");
+    } else {
+      setShowerFeedback(lang === "pt" ? "⚠️ Alerta de desperdício! Tenta banhos mais curtos de 5 min para proteger os rios." : "⚠️ Waste alert! Try shorter 5-minute baths to protect our rivers.");
+    }
+  }, [showerTime, lang]);
+
+  // Motor de Autoscroll para Notícias
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
 
     let animationId: number;
-    
     const scroll = () => {
-      // Se o usuário estiver tocando, arrastando ou com o mouse por cima, o script dá-lhe prioridade total
       if (!isInteractingRef.current) {
-        container.scrollLeft += 0.8; // Velocidade suave e agradável
-
-        // Efeito infinito: quando chega perto do fim do bloco duplicado, volta ao início discretamente
+        container.scrollLeft += 0.8;
         if (container.scrollLeft >= container.scrollWidth / 2) {
           container.scrollLeft = 0;
         }
@@ -105,8 +147,8 @@ export default function StartScreen({ onStart }: Props) {
     return () => cancelAnimationFrame(animationId);
   }, [lang]);
 
-  // Duplicamos os artigos para garantir que o scroll infinito tenha conteúdo para preencher o ecrã
   const doublePosts = [...MOZ_BLOG_POSTS[lang], ...MOZ_BLOG_POSTS[lang]];
+  const activeInsight = ECO_INSIGHTS[lang][currentInsightIdx];
 
   return (
     <div
@@ -116,7 +158,6 @@ export default function StartScreen({ onStart }: Props) {
         ["WebkitOverflowScrolling" as any]: "touch" 
       }}
     >
-      {/* ── ACELERAÇÃO DE HARDWARE DO GRADIENTE ── */}
       <div 
         className="absolute inset-0 z-0 bg-emerald-950 pointer-events-none transform-gpu"
         style={{
@@ -124,7 +165,6 @@ export default function StartScreen({ onStart }: Props) {
         }} 
       />
 
-      {/* Partículas estáticas ultra-leves */}
       {PARTICLES.map((p, i) => (
         <div 
           key={i}
@@ -150,7 +190,7 @@ export default function StartScreen({ onStart }: Props) {
           {(["pt", "en"] as Lang[]).map(l => (
             <button 
               key={l} 
-              onClick={() => setLang(l)}
+              onClick={() => { setLang(l); setShowerTime(""); }}
               className={`px-3 py-1 rounded-full font-black text-[11px] md:text-xs transition-all cursor-pointer ${
                 lang === l ? "bg-white text-slate-950 shadow-sm" : "text-white/60 hover:text-white"
               }`}
@@ -161,7 +201,19 @@ export default function StartScreen({ onStart }: Props) {
         </div>
       </header>
 
-      {/* ── LAYOUT CENTRAL COMPACTO CANVA/PINTEREST ── */}
+      {/* ── SEÇÃO DE DICAS DIÁRIAS & MOTIVAÇÃO (DINÂMICA) ── */}
+      <div className="w-full max-w-5xl mx-auto z-10 animate-fade-in">
+        <div className="bg-gradient-to-r from-emerald-500/20 to-teal-500/10 border border-emerald-500/30 rounded-2xl p-4 backdrop-blur-md flex flex-col sm:flex-row items-start sm:items-center gap-3 shadow-lg">
+          <div className="bg-emerald-400 text-slate-950 text-[10px] font-black px-2 py-1 rounded-lg uppercase tracking-wider shrink-0">
+            {activeInsight.type}
+          </div>
+          <p className="text-white text-xs md:text-sm font-medium transition-all duration-500">
+            "{activeInsight.text}"
+          </p>
+        </div>
+      </div>
+
+      {/* ── LAYOUT CENTRAL PRINCIPAL ── */}
       <main className="w-full max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 z-10 relative items-stretch">
         
         {/* Painel Informativo Esquerdo */}
@@ -177,7 +229,7 @@ export default function StartScreen({ onStart }: Props) {
             </p>
           </div>
 
-          {/* MISSÕES EM GRID RESPONSIVO COMPACTO (Lado a lado no mobile) */}
+          {/* MISSÕES EM GRID RESPONSIVO */}
           <div className="grid grid-cols-3 gap-2 md:gap-4">
             {t.missions.map((m, i) => (
               <div 
@@ -198,9 +250,10 @@ export default function StartScreen({ onStart }: Props) {
           </div>
         </section>
 
-        {/* Caixa de Entrada Direta (Card Pro de Acesso) */}
-        <section className="lg:col-span-5 w-full flex">
-          <div className="w-full bg-black/40 rounded-2xl p-5 flex flex-col justify-center gap-4 border border-white/10 shadow-xl backdrop-blur-md">
+        {/* Caixa de Entrada Direta + Eco-Check do Chuveiro */}
+        <section className="lg:col-span-5 w-full flex flex-col gap-4">
+          {/* Formulário de Login Principal */}
+          <div className="w-full bg-black/40 rounded-2xl p-5 flex flex-col justify-center gap-4 border border-white/10 shadow-xl backdrop-blur-md flex-grow">
             <div className="text-center">
               <span className="bg-emerald-400 text-slate-950 font-black text-[9px] tracking-widest uppercase rounded px-2 py-0.5 inline-block mb-1 shadow-sm">
                 {lang === "pt" ? "LOGIN" : "PLAY"}
@@ -218,7 +271,6 @@ export default function StartScreen({ onStart }: Props) {
               placeholder={lang === "pt" ? "Nome do Jogador..." : "Player Name..."}
               maxLength={16}
               className="w-full bg-black/50 text-white placeholder-white/20 font-bold rounded-xl px-4 py-3 text-center border border-white/10 focus:border-emerald-400 focus:outline-none transition-all text-xs md:text-sm shadow-inner"
-              data-testid="input-player-name"
             />
 
             <button
@@ -230,7 +282,6 @@ export default function StartScreen({ onStart }: Props) {
                   ? "linear-gradient(135deg, #10b981 0%, #0284c7 100%)"
                   : "rgba(255,255,255,0.05)",
               }}
-              data-testid="button-start-game"
             >
               {canPlay 
                 ? (lang === "pt" ? "Jogar ➔" : "Play ➔") 
@@ -238,10 +289,36 @@ export default function StartScreen({ onStart }: Props) {
               }
             </button>
           </div>
+
+          {/* NOVO: Componente Interativo de Hábito Diário (Chuveiro) */}
+          <div className="w-full bg-black/30 border border-white/5 rounded-2xl p-4 backdrop-blur-md">
+            <h4 className="text-white font-black text-[11px] md:text-xs uppercase tracking-wider flex items-center gap-1.5 mb-2">
+              <span>🚿</span> {lang === "pt" ? "Eco-Check Rápido" : "Quick Eco-Check"}
+            </h4>
+            <div className="flex flex-col gap-2">
+              <label className="text-white/70 text-[11px] md:text-xs">
+                {lang === "pt" ? "Quantos minutos demorou o teu banho hoje?" : "How many minutes was your shower today?"}
+              </label>
+              <input
+                type="number"
+                value={showerTime}
+                onChange={e => setShowerTime(e.target.value === "" ? "" : Number(e.target.value))}
+                placeholder="Ex: 5"
+                min="1"
+                max="60"
+                className="w-full bg-black/30 text-emerald-400 font-black rounded-lg px-3 py-2 border border-white/10 focus:border-emerald-500 focus:outline-none text-xs"
+              />
+              {showerFeedback && (
+                <p className="text-[11px] font-bold text-emerald-300 mt-1 bg-emerald-950/40 p-2 rounded-md border border-emerald-500/20 animate-fade-in">
+                  {showerFeedback}
+                </p>
+              )}
+            </div>
+          </div>
         </section>
       </main>
 
-      {/* ── SECÇÃO DE NOTÍCIAS COM CONTROLO TÁTIL TOTAL SOBERBO ── */}
+      {/* ── SECÇÃO DE NOTÍCIAS REALISTAS ── */}
       <section className="w-full max-w-5xl mx-auto z-10 border-t border-white/10 pt-4 relative overflow-hidden">
         <div className="flex items-center gap-1.5 mb-2.5 px-1 justify-between">
           <div className="flex items-center gap-1.5">
@@ -255,11 +332,9 @@ export default function StartScreen({ onStart }: Props) {
           </span>
         </div>
 
-        {/* Contentor Táctil Interativo e Inteligente */}
         <div 
           ref={scrollContainerRef}
           className="w-full overflow-x-auto pb-2 flex gap-4 custom-scrollbar-clean mask-edges snap-x md:snap-none"
-          // Eventos para pausar o autoscroll imediatamente durante interações físicas do usuário
           onMouseEnter={() => { isInteractingRef.current = true; }}
           onMouseLeave={() => { isInteractingRef.current = false; }}
           onTouchStart={() => { isInteractingRef.current = true; }}
@@ -273,7 +348,6 @@ export default function StartScreen({ onStart }: Props) {
               rel="noopener noreferrer"
               className="w-[240px] md:w-[290px] shrink-0 bg-black/40 border border-white/5 rounded-xl overflow-hidden flex flex-col group hover:border-emerald-400/40 transition-colors snap-center"
             >
-              {/* Imagem Proporcional Premium */}
               <div className="w-full h-24 md:h-28 overflow-hidden relative">
                 <div 
                   className="w-full h-full bg-cover bg-center"
@@ -285,14 +359,13 @@ export default function StartScreen({ onStart }: Props) {
                 </span>
               </div>
 
-              {/* Texto Compactado Profissional */}
               <div className="p-3 flex flex-col justify-between flex-grow gap-2">
                 <h4 className="text-white font-bold text-[11px] md:text-xs tracking-tight leading-snug line-clamp-2 group-hover:text-emerald-300 transition-colors">
                   {post.title}
                 </h4>
                 <span className="text-emerald-400 font-black text-[9px] uppercase tracking-wider">
                   {lang === "pt" ? "Visitar portal ➔" : "Visit portal ➔"}
-                  </span>
+                </span>
               </div>
             </a>
           ))}
@@ -306,7 +379,6 @@ export default function StartScreen({ onStart }: Props) {
         </p>
       </footer>
 
-      {/* Ocultação total da scrollbar e suavização de renderização no iOS/Android */}
       <style>{`
         .custom-scrollbar-clean::-webkit-scrollbar { display: none; }
         .custom-scrollbar-clean { 
@@ -316,6 +388,13 @@ export default function StartScreen({ onStart }: Props) {
         .mask-edges {
           -webkit-mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
           mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(4px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+          animation: fadeIn 0.4s ease-out forwards;
         }
       `}</style>
     </div>

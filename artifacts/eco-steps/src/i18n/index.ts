@@ -30,6 +30,7 @@ export interface T {
   trashScore: (c: number, t: number) => string;
   bins: { blue: string; brown: string; gray: string };
   binExamples: { blue: string; brown: string; gray: string };
+  whyThisMatters: string; // Nova chave para a explicação do erro
   /* Taps */
   tapsHint: string;
   tapsOpen: (n: number) => string;
@@ -67,7 +68,7 @@ const PT: T = {
   lightsHint: "🌙 Toca nas lâmpadas amarelas para as apagar!",
   lightOff: "Apagada",
   lightsSuccess: "Energia economizada!",
-  lightsSub: "Muito bem! Continuem a apagar as luzes em casa.",
+  lightsSub: "Muito bem! Continuen a apagar as luzes em casa.",
   lightsLeft: n => `💡 ${n} acesas`,
   savedWatts: n => `⚡ ${n}W poupados`,
   lightsTips: [
@@ -88,6 +89,7 @@ const PT: T = {
     brown: "Restos de comida • Cascas • Folhas",
     gray: "Higiene • Embalagens sujas",
   },
+  whyThisMatters: "💡 Porquê separar desta forma?",
   tapsHint: "💧 Toca nos botões vermelhos para fechar as torneiras!",
   tapsOpen: n => `💧 ${n} abertas`,
   tapsSaved: l => `🌊 ${l}L/min poupados`,
@@ -156,6 +158,7 @@ const EN: T = {
     brown: "Food scraps • Peels • Leaves",
     gray: "Hygiene • Dirty packaging",
   },
+  whyThisMatters: "💡 Why separate this way?",
   tapsHint: "💧 Tap the red buttons to close the taps!",
   tapsOpen: n => `💧 ${n} open`,
   tapsSaved: l => `🌊 ${l}L/min saved`,
