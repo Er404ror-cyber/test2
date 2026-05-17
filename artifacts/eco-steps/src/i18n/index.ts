@@ -30,7 +30,7 @@ export interface T {
   trashScore: (c: number, t: number) => string;
   bins: { blue: string; brown: string; gray: string };
   binExamples: { blue: string; brown: string; gray: string };
-  whyThisMatters: string; // Nova chave para a explicação do erro
+  whyThisMatters: string;
   /* Taps */
   tapsHint: string;
   tapsOpen: (n: number) => string;
@@ -80,7 +80,7 @@ const PT: T = {
   trashHint: "Escolhe a lixeira certa para cada item!",
   trashQuestion: "Para qual lixeira vai?",
   trashCorrect: "✅ Correto! Parabéns!",
-  trashWrong: c => `❌ Errou! Era: ${c}!`,
+  trashWrong: c => `❌ Destino Incorreto! A lixeira correta era: ${c}`,
   trashSuccess: "Separação feita!",
   trashScore: (c, t) => `${c} de ${t} corretos`,
   bins: { blue: "Reciclável", brown: "Orgânico", gray: "Comum" },
@@ -149,7 +149,7 @@ const EN: T = {
   trashHint: "Choose the right bin for each item!",
   trashQuestion: "Which bin does it go to?",
   trashCorrect: "✅ Correct! Well done!",
-  trashWrong: c => `❌ Wrong! It was: ${c}!`,
+  trashWrong: c => `❌ Incorrect Destination! The correct bin was: ${c}`,
   trashSuccess: "Sorting done!",
   trashScore: (c, t) => `${c} out of ${t} correct`,
   bins: { blue: "Recyclable", brown: "Organic", gray: "General" },
