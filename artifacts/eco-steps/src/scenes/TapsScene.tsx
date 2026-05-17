@@ -1,17 +1,17 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Lang, TRANSLATIONS } from "@/i18n";
 
 interface Tap { id: number; litersPerMin: number; }
 const TAPS: Tap[] = [
-  { id:1, litersPerMin:12 },
-  { id:2, litersPerMin:15 },
-  { id:3, litersPerMin:10 },
+  { id: 1, litersPerMin: 12 },
+  { id: 2, litersPerMin: 15 },
+  { id: 3, litersPerMin: 10 },
 ];
 
-function WaterKid({ happy }: { happy: boolean }) {
+const WaterKid = React.memo(({ happy, openCount }: { happy: boolean; openCount: number }) => {
   return (
-    <svg viewBox="0 0 64 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 64 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" className="will-change-transform transform-gpu">
       <ellipse cx="32" cy="14" rx="16" ry="14" fill="#0284c7" />
       <circle cx="32" cy="18" r="14" fill="#fbbf24" />
       <circle cx="26" cy="15" r="3" fill="#1e1b4b" />
@@ -19,10 +19,15 @@ function WaterKid({ happy }: { happy: boolean }) {
       <circle cx="27" cy="14" r="1" fill="white" />
       <circle cx="39" cy="14" r="1" fill="white" />
       {happy
-        ?<path d="M25 22 Q32 28 39 22" fill="none" stroke="#1e1b4b" strokeWidth="2" strokeLinecap="round"/>
-        :<path d="M27 22 Q32 25 37 22" fill="none" stroke="#1e1b4b" strokeWidth="2" strokeLinecap="round"/>}
+        ? <path d="M25 22 Q32 28 39 22" fill="none" stroke="#1e1b4b" strokeWidth="2" strokeLinecap="round"/>
+        : <path d="M27 24 Q32 20 37 24" fill="none" stroke="#1e1b4b" strokeWidth="2" strokeLinecap="round"/>}
       <rect x="18" y="32" width="28" height="34" rx="9" fill="#0ea5e9" />
-      <line x1="18" y1="38" x2="4" y2="24" stroke="#fbbf24" strokeWidth="8" strokeLinecap="round" />
+      
+      {/* Braço esquerdo indica preocupação se houver muita água a correr */}
+      {openCount > 0 
+        ? <path d="M18 38 Q6 45 4 32" fill="none" stroke="#fbbf24" strokeWidth="8" strokeLinecap="round" />
+        : <line x1="18" y1="38" x2="4" y2="24" stroke="#fbbf24" strokeWidth="8" strokeLinecap="round" />
+      }
       <circle cx="3" cy="21" r="5" fill="#fbbf24" />
       <line x1="46" y1="38" x2="59" y2="52" stroke="#fbbf24" strokeWidth="8" strokeLinecap="round" />
       <line x1="25" y1="66" x2="20" y2="94" stroke="#0284c7" strokeWidth="10" strokeLinecap="round" />
@@ -31,7 +36,8 @@ function WaterKid({ happy }: { happy: boolean }) {
       <ellipse cx="47" cy="97" rx="8" ry="4.5" fill="#1e1b4b" />
     </svg>
   );
-}
+});
+WaterKid.displayName = "WaterKid";
 
 interface Props {
   onComplete: (points: number, message: string) => void;
@@ -41,138 +47,170 @@ interface Props {
 
 export default function TapsScene({ onComplete, totalPoints, lang }: Props) {
   const t = TRANSLATIONS[lang];
-  const [closed, setClosed]     = useState<Set<number>>(new Set());
-  const [activeFact, setFact]   = useState<string | null>(null);
+  const [closed, setClosed] = useState<Set<number>>(new Set());
+  const [activeFact, setFact] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  const allClosed   = closed.size === TAPS.length;
-  const litersSaved = TAPS.filter(tp => closed.has(tp.id)).reduce((s,tp) => s+tp.litersPerMin, 0);
+  const openCount = TAPS.length - closed.size;
+  const allClosed = closed.size === TAPS.length;
+  
+  const litersSaved = useMemo(() => 
+    TAPS.filter(tp => closed.has(tp.id)).reduce((s, tp) => s + tp.litersPerMin, 0)
+  , [closed]);
 
-  const closeTap = (tap: Tap) => {
+  // Limpeza preventiva de timers em background
+  useEffect(() => {
+    return () => {
+      for (let i = setTimeout(() => {}, 0); i >= 0; i--) {
+        clearTimeout(i);
+      }
+    };
+  }, []);
+
+  const closeTap = useCallback((tap: Tap) => {
     if (closed.has(tap.id) || showSuccess) return;
-    const next = new Set(closed); next.add(tap.id);
-    setClosed(next);
-    setFact(t.tapsMicroFacts[(tap.id-1) % t.tapsMicroFacts.length]);
-    setTimeout(()=>setFact(null), 2400);
-  };
+    
+    setClosed(prev => {
+      const next = new Set(prev);
+      next.add(tap.id);
+      return next;
+    });
 
-  useEffect(()=>{
+    setFact(t.tapsMicroFacts[(tap.id - 1) % t.tapsMicroFacts.length]);
+    
+    setTimeout(() => {
+      setFact(null);
+    }, 2800);
+  }, [closed, showSuccess, t.tapsMicroFacts]);
+
+  useEffect(() => {
     if (!allClosed) return;
     setShowSuccess(true);
-    setTimeout(()=>onComplete(80,t.tapsSuccess), 1900);
-  },[allClosed]);
+    setTimeout(() => onComplete(80, t.tapsSuccess), 2200);
+  }, [allClosed, onComplete, t.tapsSuccess]);
 
   return (
     <div className="relative w-full h-full overflow-hidden select-none"
-      style={{fontFamily:"Outfit, sans-serif",background:"linear-gradient(180deg,#e0f2fe 0%,#bae6fd 45%,#e2e8f0 100%)"}}>
+      style={{ fontFamily: "Outfit, sans-serif", background: "linear-gradient(180deg, #e0f2fe 0%, #bae6fd 45%, #e2e8f0 100%)" }}>
 
-      {/* Tile wall */}
-      <div className="absolute inset-0 pointer-events-none">
-        <svg className="absolute inset-0 w-full h-full" style={{opacity:0.22}}>
-          <defs><pattern id="wt" x="0" y="0" width="50" height="50" patternUnits="userSpaceOnUse">
-            <rect x="1" y="1" width="46" height="46" fill="none" stroke="#0ea5e9" strokeWidth="1.5" rx="3"/>
-          </pattern></defs>
-          <rect width="100%" height="70%" fill="url(#wt)" />
+      {/* Parede de Azulejos Realista */}
+      <div className="absolute inset-0 pointer-events-none z-0">
+        <svg className="absolute inset-0 w-full h-full" style={{ opacity: 0.15 }}>
+          <defs>
+            <pattern id="wt" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+              <rect x="0" y="0" width="38" height="38" fill="none" stroke="#0ea5e9" strokeWidth="1" rx="2"/>
+            </pattern>
+          </defs>
+          <rect width="100%" height="72%" fill="url(#wt)" />
         </svg>
-        <div className="absolute bottom-0 left-0 right-0 h-[28%]" style={{background:"linear-gradient(180deg,#e2e8f0,#cbd5e1)"}}>
-          <svg className="absolute inset-0 w-full h-full opacity-25">
-            <defs><pattern id="ft" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
-              <rect x="1" y="1" width="56" height="56" fill="none" stroke="#94a3b8" strokeWidth="1"/>
-            </pattern></defs>
+        <div className="absolute bottom-0 left-0 right-0 h-[28%]" style={{ background: "linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%)" }}>
+          <svg className="absolute inset-0 w-full h-full opacity-15">
+            <pattern id="ft" x="0" y="0" width="50" height="50" patternUnits="userSpaceOnUse">
+              <rect x="0" y="0" width="50" height="50" fill="none" stroke="#64748b" strokeWidth="1"/>
+            </pattern>
             <rect width="100%" height="100%" fill="url(#ft)"/>
           </svg>
         </div>
-        <div className="absolute left-0 right-0 h-3 bg-white/60" style={{bottom:"28%"}} />
+        <div className="absolute left-0 right-0 h-2.5 bg-white/40 shadow-xs" style={{ bottom: "28%" }} />
       </div>
 
-      {/* Mirror */}
-      <div className="absolute rounded-2xl overflow-hidden"
-        style={{left:"25%",top:"4%",width:"50%",height:"18%",
-          background:"linear-gradient(135deg,rgba(186,230,253,0.8),rgba(224,242,254,0.6))",
-          border:"4px solid rgba(255,255,255,0.85)",boxShadow:"0 4px 20px rgba(0,0,0,0.1)"}}>
-        <div className="absolute inset-0 flex items-center justify-center gap-8 opacity-35 text-2xl">
-          {TAPS.map(tp=><span key={tp.id}>{closed.has(tp.id)?"✅":"💧"}</span>)}
+      {/* Painel HUD Superior */}
+      <div className="absolute top-3 left-3 right-3 flex justify-between z-40 items-center gap-2">
+        <div className="bg-white/80 backdrop-blur-md rounded-2xl px-3 py-1.5 shadow-xs border border-white/40">
+          <span className="font-black text-red-600 tracking-tight" style={{ fontSize: "clamp(10px, 2.4vw, 13px)" }}>
+            ⚠️ {openCount} {openCount === 1 ? (lang === "pt" ? "Torneira a Desperdiçar" : "Tap Wasting") : (lang === "pt" ? "Torneiras a Desperdiçar" : "Taps Wasting")}
+          </span>
         </div>
-        <div className="absolute top-2 left-3 text-sm opacity-40">🪞</div>
-      </div>
-
-      {/* HUD */}
-      <div className="absolute top-3 left-3 right-3 flex justify-between z-40">
-        <div className="bg-white/70 backdrop-blur rounded-2xl px-3 py-1.5">
-          <span className="font-black text-blue-700" style={{fontSize:"clamp(10px,2.4vw,13px)"}}>{t.tapsOpen(TAPS.length-closed.size)}</span>
-        </div>
-        <motion.div key={litersSaved} initial={{scale:1.25}} animate={{scale:1}}
-          className="bg-white/70 backdrop-blur rounded-2xl px-3 py-1.5">
-          <span className="font-black text-cyan-700" style={{fontSize:"clamp(10px,2.4vw,13px)"}}>{t.tapsSaved(litersSaved)}</span>
+        <motion.div key={litersSaved} initial={{ scale: 1.15 }} animate={{ scale: 1 }}
+          className="bg-emerald-500 text-white rounded-2xl px-3 py-1.5 shadow-sm font-black tracking-tight" style={{ fontSize: "clamp(10px, 2.4vw, 13px)" }}>
+          {t.tapsSaved(litersSaved)}
         </motion.div>
-        <div className="bg-white/70 backdrop-blur rounded-2xl px-3 py-1.5">
-          <span className="font-black text-yellow-600" style={{fontSize:"clamp(10px,2.4vw,13px)"}}>⭐{totalPoints}</span>
+        <div className="bg-white/80 backdrop-blur-md rounded-2xl px-3 py-1.5 shadow-xs border border-white/40 font-black text-amber-600" style={{ fontSize: "clamp(10px, 2.4vw, 13px)" }}>
+          ⭐ {totalPoints}
         </div>
       </div>
 
-      {/* Sink counter */}
-      <div className="absolute z-10 flex items-stretch gap-2 px-3"
-        style={{left:0,right:0,bottom:"26%",height:"44%"}}>
-        {TAPS.map(tap=>{
+      {/* Zona Central de Lavatórios e Desperdiço Dinâmico */}
+      <div className="absolute z-10 flex items-stretch gap-3 px-2" style={{ left: 0, right: 0, bottom: "26%", height: "48%" }}>
+        {TAPS.map(tap => {
+          const dangers = ["#38bdf8", "#3b82f6", "#ef4444"];
           const isClosed = closed.has(tap.id);
+          
           return (
-            <div key={tap.id} className="flex-1 flex flex-col items-center">
-              <div className="flex flex-col items-center flex-1 justify-end pb-2">
-                <div className="rounded-t-full" style={{width:"clamp(10px,2.8vw,18px)",height:"clamp(20px,5vw,34px)",background:"linear-gradient(180deg,#e2e8f0,#94a3b8)"}} />
-                <div className="rounded-full" style={{width:"clamp(14px,4vw,24px)",height:"clamp(8px,2vw,12px)",background:"#64748b"}} />
+            <div key={tap.id} className="flex-1 flex flex-col items-center justify-end relative">
+              
+              {/* Elementos da Torneira e Corrente Hidráulica */}
+              <div className="flex flex-col items-center flex-grow justify-end w-full relative pb-1">
+                <div className="rounded-t-full relative z-10" style={{ width: "14px", height: "30px", background: "linear-gradient(90deg, #f1f5f9, #cbd5e1, #94a3b8)" }} />
+                <div className="rounded-full shadow-xs relative z-10" style={{ width: "22px", height: "10px", background: "#475569" }} />
 
-                {/* Water stream — CSS only */}
+                {/* Efeito Fluido de Água Viva */}
                 {!isClosed && (
-                  <>
-                    <div className="water-stream rounded-b-lg"
+                  <div className="absolute top-[36px] bottom-0 flex flex-col items-center justify-end pointer-events-none z-0">
+                    <div className="water-fall-stream"
                       style={{
-                        width:"clamp(9px,2.4vw,16px)",
-                        height:"clamp(55px,13vw,95px)",
-                        backgroundImage:"repeating-linear-gradient(180deg,rgba(96,165,250,1) 0px,rgba(147,197,253,0.75) 7px,rgba(56,189,248,0.95) 14px,rgba(96,165,250,1) 20px)",
-                        backgroundSize:"100% 20px",
-                        borderRadius:"0 0 8px 8px",
-                        filter:"blur(0.5px)",
-                        boxShadow:"0 2px 12px 4px rgba(96,165,250,0.55)",
-                      }} />
-                    <motion.div animate={{scaleX:[0.5,1.15,0.7],opacity:[0.8,0.4,0.8]}} transition={{duration:1.0,repeat:Infinity}}
-                      style={{width:"clamp(22px,5.5vw,40px)",height:"clamp(7px,1.8vw,12px)",borderRadius:"50%",background:"rgba(96,165,250,0.45)",filter:"blur(2px)"}} />
-                  </>
+                        width: "12px",
+                        height: "100%",
+                        maxHeight: "105px",
+                        backgroundImage: "linear-gradient(90deg, rgba(255,255,255,0.7) 0%, rgba(56,189,248,0.9) 30%, rgba(29,78,216,0.8) 70%, rgba(255,255,255,0.4) 100%)",
+                        boxShadow: "0 0 10px rgba(56,189,248,0.6)",
+                        borderRadius: "0 0 4px 4px"
+                      }} 
+                    />
+                    {/* Respingos na Base do Ralo */}
+                    <motion.div 
+                      animate={{ scale: [0.7, 1.3, 0.8], opacity: [0.9, 0.4, 0.9] }} 
+                      transition={{ duration: 0.6, repeat: Infinity }}
+                      className="bg-sky-300/60 filter blur-xs rounded-full"
+                      style={{ width: "28px", height: "8px", marginTop: "-4px" }} 
+                    />
+                  </div>
                 )}
               </div>
 
-              {/* Counter */}
-              <div className="w-full rounded-t-2xl shadow-lg" style={{height:"clamp(14px,3.5vw,22px)",background:"linear-gradient(180deg,#f8fafc,#e2e8f0)",border:"2px solid #cbd5e1"}} />
-              <div className="w-full flex flex-col items-center rounded-b-xl flex-1"
-                style={{background:"linear-gradient(180deg,#e2e8f0,#cbd5e1)",border:"2px solid #cbd5e1",borderTop:"none"}}>
-                <div className="rounded-b-[40%] overflow-hidden mt-1"
-                  style={{width:"80%",aspectRatio:"2/1",background:"linear-gradient(180deg,#f0f9ff,#e0f2fe)",border:"2px solid #bae6fd"}}>
+              {/* Balcão Superior */}
+              <div className="w-full rounded-t-xl z-10" style={{ height: "14px", background: "linear-gradient(180deg, #ffffff, #e2e8f0)", border: "1px solid #cbd5e1" }} />
+              
+              {/* Cuba do Lavatório com Nível de Transbordo Real */}
+              <div className="w-full flex flex-col items-center rounded-b-2xl p-1 relative z-10"
+                style={{ background: "linear-gradient(180deg, #f1f5f9, #cbd5e1)", border: "1px solid #cbd5e1", borderTop: "none" }}>
+                
+                {/* Ralo Interno */}
+                <div className="rounded-b-full overflow-hidden mt-0.5 relative"
+                  style={{ width: "85%", height: "24px", background: "linear-gradient(180deg, #cbd5e1, #94a3b8)", border: "1px solid #94a3b8" }}>
+                  
+                  {/* Água Física Acumulada no interior do Lavatório */}
                   {!isClosed && (
-                    <motion.div animate={{height:["20%","30%","20%"]}} transition={{duration:1.5,repeat:Infinity}}
-                      className="absolute bottom-0 left-0 right-0 rounded-b-[40%]"
-                      style={{background:"rgba(96,165,250,0.4)"}} />
+                    <motion.div 
+                      animate={{ height: ["45%", "85%", "45%"], background: ["#60a5fa", "#ef4444", "#60a5fa"] }} 
+                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                      className="absolute bottom-0 left-0 right-0 transform-gpu" 
+                    />
                   )}
                 </div>
 
-                <motion.button onClick={()=>closeTap(tap)}
-                  whileTap={!isClosed?{scale:0.8}:{}} whileHover={!isClosed?{scale:1.08,y:-2}:{}}
-                  className="rounded-full flex items-center justify-center font-black shadow-lg focus:outline-none mt-1 mb-1"
+                {/* Botão de Válvula / Acção de Estancamento */}
+                <button 
+                  onClick={() => closeTap(tap)}
+                  disabled={isClosed}
+                  className="rounded-xl flex items-center justify-center font-black focus:outline-none mt-2 mb-1.5 transition-all transform-gpu active:scale-90"
                   style={{
-                    width:"clamp(36px,9vw,60px)",height:"clamp(36px,9vw,60px)",
-                    background:isClosed?"linear-gradient(135deg,#22c55e,#16a34a)":"linear-gradient(135deg,#ef4444,#b91c1c)",
-                    border:`3px solid ${isClosed?"#bbf7d0":"#fca5a5"}`,
-                    cursor:isClosed?"default":"pointer",
-                    fontSize:"clamp(14px,3.5vw,22px)",
-                    animation:isClosed?"none":"pulse-ring 1.2s ease-out infinite",
-                    boxShadow:isClosed?"0 2px 8px rgba(34,197,94,0.4)":"0 2px 12px rgba(239,68,68,0.5)",
+                    width: "100%",
+                    maxWidth: "54px",
+                    height: "36px",
+                    background: isClosed ? "linear-gradient(135deg,#10b981,#047857)" : "linear-gradient(135deg,#f43f5e,#be123c)",
+                    color: "#ffffff",
+                    cursor: isClosed ? "default" : "pointer",
+                    fontSize: "12px",
+                    boxShadow: isClosed ? "0 2px 6px rgba(16,185,129,0.3)" : "0 4px 12px rgba(244,63,94,0.45)",
+                    border: `1px solid ${isClosed ? "#34d399" : "#fb7185"}`
                   }}
-                  data-testid={`button-tap-${tap.id}`}>
-                  {isClosed?"✓":"🔴"}
-                </motion.button>
+                >
+                  {isClosed ? "✓" : "STOP"}
+                </button>
 
-                <div className="px-1 pb-1 text-center" style={{fontSize:"clamp(7px,1.6vw,10px)"}}>
-                  {isClosed
-                    ?<span className="text-green-600 font-black">{t.tapClosed}</span>
-                    :<span className="text-red-500 font-black">{t.tapClose}</span>}
+                <div className="text-[9px] font-black uppercase tracking-wider text-center pb-0.5">
+                  {isClosed ? <span className="text-emerald-600">{t.tapClosed}</span> : <span className="text-rose-500 animate-pulse">{tap.litersPerMin}L/min</span>}
                 </div>
               </div>
             </div>
@@ -180,53 +218,80 @@ export default function TapsScene({ onComplete, totalPoints, lang }: Props) {
         })}
       </div>
 
-      {/* Child */}
-      <motion.div className="absolute z-20 pointer-events-none"
-        style={{right:"1%",bottom:"26%",width:"clamp(46px,10vw,76px)",height:"clamp(72px,15vw,118px)"}}
-        animate={allClosed?{y:[0,-10,0,-10,0]}:{}}>
-        <WaterKid happy={closed.size>0} />
-        <div className="absolute -top-9 left-1/2 -translate-x-1/2 bg-white rounded-2xl px-2 py-1 shadow-lg font-black whitespace-nowrap text-center"
-          style={{fontSize:"clamp(7px,1.7vw,10px)"}}>
-          {allClosed?"🎉!":closed.size===0?t.tapsOpen(TAPS.length):t.tapsOpen(TAPS.length-closed.size)}
+      {/* Monitor de Alerta Emocional (WaterKid) */}
+      <motion.div className="absolute z-30 pointer-events-none"
+        style={{ right: "4%", bottom: "26%", width: "clamp(50px, 11vw, 72px)", height: "clamp(76px, 16vw, 110px)" }}
+        animate={allClosed ? { y: [0, -8, 0, -8, 0] } : {}}
+        transition={{ duration: 0.6, repeat: allClosed ? 3 : 0 }}
+      >
+        <WaterKid happy={allClosed} openCount={openCount} />
+        <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-900 text-white font-black px-2 py-0.5 rounded-lg shadow-md tracking-wide whitespace-nowrap text-[9px]">
+          {allClosed ? "SALVO! 🎉" : `${openCount} ${lang === "pt" ? "ABERTA!" : "OPEN!"}`}
         </div>
       </motion.div>
 
-      {/* Fact toast */}
+      {/* Balão de Informação de Impacto Ecológico Real */}
       <AnimatePresence>
         {activeFact && (
-          <motion.div key="fact" initial={{opacity:0,y:30}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-20}}
-            className="absolute left-3 right-3 z-50" style={{bottom:"30%"}}>
-            <div className="bg-blue-600 text-white rounded-2xl px-4 py-3 shadow-xl text-center">
-              <p className="font-black" style={{fontSize:"clamp(10px,2.5vw,14px)"}}>✅ {lang==="pt"?"Torneira fechada!":"Tap closed!"}</p>
-              <p className="font-semibold mt-0.5 opacity-90" style={{fontSize:"clamp(9px,2.1vw,12px)"}}>💡 {activeFact}</p>
+          <motion.div key="fact" initial={{ opacity: 0, y: 15, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -10 }}
+            className="absolute left-4 right-4 z-50 transform-gpu" style={{ bottom: "31%" }}>
+            <div className="bg-slate-900/95 backdrop-blur-md text-white rounded-2xl p-3.5 shadow-xl border border-slate-800">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-emerald-400 text-sm">🛡️</span>
+                <p className="font-black text-xs uppercase tracking-wider text-emerald-400">{lang === "pt" ? "Desperdício Travado!" : "Waste Stopped!"}</p>
+              </div>
+              <p className="font-medium text-slate-200 leading-relaxed text-xs">
+                {activeFact}
+              </p>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Bottom hint */}
-      <div className="absolute bottom-2 left-3 right-3 z-30">
-        <div className="bg-white/65 backdrop-blur rounded-2xl px-4 py-2 text-center">
-          <p className="font-bold text-blue-800" style={{fontSize:"clamp(10px,2.3vw,13px)"}}>{t.tapsHint}</p>
+      {/* Guia Técnico Inferior */}
+      <div className="absolute bottom-2 left-4 right-4 z-30">
+        <div className="bg-white/70 backdrop-blur-md rounded-xl py-2 px-3 text-center border border-white/50 shadow-2xs">
+          <p className="font-bold text-slate-700 text-xs tracking-tight">{t.tapsHint}</p>
         </div>
       </div>
 
-      {/* Success */}
+      {/* Ecrã de Vitória e Balanço Crítico */}
       <AnimatePresence>
         {showSuccess && (
-          <motion.div initial={{opacity:0}} animate={{opacity:1}}
-            className="absolute inset-0 z-50 flex items-center justify-center" style={{background:"rgba(0,0,0,0.68)"}}>
-            <motion.div initial={{scale:0}} animate={{scale:1}} transition={{type:"spring",bounce:0.55}}
-              className="bg-white rounded-[2rem] p-8 text-center shadow-2xl max-w-xs w-full mx-4">
-              <div className="text-6xl mb-3">💧✅🌊</div>
-              <h3 className="font-black text-blue-700 mb-2" style={{fontSize:"clamp(17px,4.5vw,24px)"}}>{t.tapsSuccess}</h3>
-              <p className="text-gray-500 font-semibold text-sm mb-1">{t.tapsSub(litersSaved)}</p>
-              <p className="text-xs text-gray-400 italic mb-2">{lang==="pt"?"Cada gota conta para o futuro do planeta.":"Every drop counts for the planet's future."}</p>
-              <p className="text-green-600 font-black text-xl">+80 ⭐</p>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            className="absolute inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-xs" style={{ background: "rgba(15, 23, 42, 0.75)" }}>
+            <motion.div initial={{ scale: 0.96, y: 10 }} animate={{ scale: 1, y: 0 }} transition={{ type: "spring", bounce: 0.25 }}
+              className="bg-white rounded-[2.2rem] p-6 text-center shadow-2xl max-w-sm w-full border border-slate-100 transform-gpu">
+              
+              <div className="text-5xl mb-2.5 animate-bounce">🌊💧</div>
+              <h3 className="font-black text-blue-600 mb-1 tracking-tight text-xl">{t.tapsSuccess}</h3>
+              <p className="text-slate-800 font-extrabold text-sm mb-1">{t.tapsSub(litersSaved)}</p>
+              
+              <div className="bg-blue-50/70 border border-blue-100/60 rounded-2xl p-3 my-3 text-left">
+                <p className="text-slate-600 text-xs font-medium leading-relaxed">
+                  {lang === "pt" 
+                    ? "Excelente intervenção. Ao fechar estas torneiras de imediato, evitou que centenas de litros de água potável fossem perdidos diretamente para o esgoto sem qualquer utilidade." 
+                    : "Great intervention! By closing these taps immediately, you prevented hundreds of liters of clean water from going directly down the drain wasted."}
+                </p>
+              </div>
+
+              <p className="text-emerald-500 font-black text-lg tracking-tight">+80 ⭐</p>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      <style>{`
+        .water-fall-stream {
+          background-size: 100% 30px;
+          animation: fluidFlow 0.35s infinite linear;
+          will-change: background-position;
+        }
+        @keyframes fluidFlow {
+          0% { background-position-y: 0px; }
+          100% { background-position-y: 30px; }
+        }
+      `}</style>
     </div>
   );
 }
