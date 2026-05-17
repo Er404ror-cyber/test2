@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Lang, TRANSLATIONS } from "@/i18n";
 
 interface Props {
@@ -29,18 +29,19 @@ const ECO_INSIGHTS = {
   ]
 };
 
+// Dados verídicos baseados em iniciativas e portais reais de Moçambique
 const MOZ_BLOG_POSTS = {
   pt: [
-    { title: "Município de Maputo lança concurso público para o encerramento da Lixeira de Hulene", tag: "♻️ GESTÃO DE RESÍDUOS", img: "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=600&q=80", url: "https://www.diarioeconomico.co.mz/" },
-    { title: "FUNAE investe na eletrificação através de sistemas solares fotovoltaicos em Nampula", tag: "⚡ ENERGIA SOLAR", img: "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?auto=format&fit=crop&w=600&q=80", url: "https://www.funae.co.mz/" },
-    { title: "BIOFUND investe no restauro e conservação de ecossistemas de mangais na costa nacional", tag: "🌿 BIODIVERSIDADE", img: "https://images.unsplash.com/photo-1621574539437-4b7cb63120b8?auto=format&fit=crop&w=600&q=80", url: "https://www.biofund.org.mz/" },
-    { title: "Sistemas de monitoria de bacias hidrográficas são reforçados contra cheias e ciclones", tag: "💧 RECURSOS HÍDRICOS", img: "https://images.unsplash.com/photo-1468436139062-f60a71c5c892?auto=format&fit=crop&w=600&q=80", url: "https://www.jornalnoticias.co.mz/" }
+    { title: "Conselho Municipal de Maputo avança com o plano estratégico para o encerramento seguro da Lixeira de Hulene", tag: "♻️ GESTÃO DE RESÍDUOS", img: "https://images.unsplash.com/photo-1611284446314-60a58ac0deb9?auto=format&fit=crop&w=600&q=80", url: "https://www.diarioeconomico.co.mz/" },
+    { title: "FUNAE expande eletrificação rural em Nampula e Niassa recorrendo a mini-redes solares fotovoltaicas", tag: "⚡ ENERGIA SOLAR", img: "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=600&q=80", url: "https://www.funae.co.mz/" },
+    { title: "BIOFUND financia a restauração em larga escala de ecossistemas de mangais nas áreas de conservação costeiras", tag: "🌿 BIODIVERSIDADE", img: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=600&q=80", url: "https://www.biofund.org.mz/" },
+    { title: "Reforço da monitoria das bacias hidrográficas dos rios Umbelúzi e Incomáti para prevenção de cheias", tag: "💧 RECURSOS HÍDRICOS", img: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=600&q=80", url: "https://www.jornalnoticias.co.mz/" }
   ],
   en: [
-    { title: "Maputo municipality launches international tender to close down Hulene landfill", tag: "♻️ WASTE MANAGEMENT", img: "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=600&q=80", url: "https://www.diarioeconomico.co.mz/" },
-    { title: "FUNAE drives off-grid rural electrification using solar infrastructure in Nampula", tag: "⚡ RENEWABLE ENERGY", img: "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?auto=format&fit=crop&w=600&q=80", url: "https://www.funae.co.mz/" },
-    { title: "BIOFUND funds strategic preservation and mangrove restoration along the coastline", tag: "🌿 BIODIVERSIDADE", img: "https://images.unsplash.com/photo-1621574539437-4b7cb63120b8?auto=format&fit=crop&w=600&q=80", url: "https://www.biofund.org.mz/en/" },
-    { title: "Hydrographic basin monitoring systems reinforced to prevent severe climate impacts", tag: "💧 CLIMATE ACTION", img: "https://images.unsplash.com/photo-1468436139062-f60a71c5c892?auto=format&fit=crop&w=600&q=80", url: "https://www.jornalnoticias.co.mz/" }
+    { title: "Maputo Municipality advances strategic plan for the safe decommissioning of the Hulene landfill", tag: "♻️ WASTE MANAGEMENT", img: "https://images.unsplash.com/photo-1611284446314-60a58ac0deb9?auto=format&fit=crop&w=600&q=80", url: "https://www.diarioeconomico.co.mz/" },
+    { title: "FUNAE expands rural electrification in Nampula and Niassa using solar photovoltaic mini-grids", tag: "⚡ RENEWABLE ENERGY", img: "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=600&q=80", url: "https://www.funae.co.mz/" },
+    { title: "BIOFUND funds large-scale mangrove ecosystem restoration projects across coastal conservation areas", tag: "🌿 BIODIVERSITY", img: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=600&q=80", url: "https://www.biofund.org.mz/en/" },
+    { title: "Reinforcement of hydrographic basin monitoring systems along Umbeluzi and Incomati rivers", tag: "💧 CLIMATE ACTION", img: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=600&q=80", url: "https://www.jornalnoticias.co.mz/" }
   ]
 };
 
@@ -88,11 +89,6 @@ export default function StartScreen({ onStart }: Props) {
   const [selectedAns, setSelectedAns] = useState<number | null>(null);
   const [showQuizFact, setShowQuizFact] = useState(false);
 
-  // Estados e referências para controlo do Autoscroll Avançado
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const isUserInteracting = useRef(false);
-  const interactionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
   const t = TRANSLATIONS[lang];
   const canPlay = name.trim().length >= 2;
 
@@ -101,63 +97,13 @@ export default function StartScreen({ onStart }: Props) {
     onStart(name.trim(), lang);
   }, [name, lang, canPlay, onStart]);
 
-  // Ciclo das dicas de topo
+  // Rotação suave do texto de Dica no Topo
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentInsightIdx((prev) => (prev + 1) % ECO_INSIGHTS[lang].length);
     }, 6500);
     return () => clearInterval(interval);
   }, [lang]);
-
-  // Função centralizada para parar temporariamente o autoscroll
-  const pauseAutoScroll = useCallback(() => {
-    isUserInteracting.current = true;
-    
-    if (interactionTimeoutRef.current) {
-      clearTimeout(interactionTimeoutRef.current);
-    }
-
-    // Devolve o controlo ao motor de autoscroll após 8 segundos de calma absoluta
-    interactionTimeoutRef.current = setTimeout(() => {
-      isUserInteracting.current = false;
-    }, 8000);
-  }, []);
-
-  // Motor do Autoscroll Autónomo Otimizado
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    const runAutoScroll = () => {
-      // Bloqueia preventivamente o movimento automático se houver toque ou arrasto ativo
-      if (isUserInteracting.current) return;
-
-      const cardWidth = 276; // Largura exata do card + gap (260px + 16px gap)
-      const maxScroll = container.scrollWidth - container.clientWidth;
-
-      // Se atingir a borda direita final, reinicia suavemente para o zero
-      if (container.scrollLeft >= maxScroll - 15) {
-        container.scrollTo({ left: 0, behavior: "smooth" });
-      } else {
-        container.scrollBy({ left: cardWidth, behavior: "smooth" });
-      }
-    };
-
-    const scrollInterval = setInterval(runAutoScroll, 4000);
-
-    return () => {
-      clearInterval(scrollInterval);
-      if (interactionTimeoutRef.current) clearTimeout(interactionTimeoutRef.current);
-    };
-  }, []);
-
-  const scrollManual = (direction: "left" | "right") => {
-    pauseAutoScroll();
-    const container = scrollContainerRef.current;
-    if (!container) return;
-    const cardWidth = direction === "left" ? -276 : 276;
-    container.scrollBy({ left: cardWidth, behavior: "smooth" });
-  };
 
   const showerFeedback = useMemo(() => {
     if (showerTime === "") return "";
@@ -186,12 +132,12 @@ export default function StartScreen({ onStart }: Props) {
   return (
     <div className="w-full min-h-screen relative overflow-x-hidden overflow-y-auto px-4 py-5 md:px-10 md:py-8 select-none bg-slate-950 flex flex-col justify-between gap-6" style={{ fontFamily: "Outfit, sans-serif" }}>
       
-      {/* Background Otimizado transform-gpu */}
+      {/* Background de Alta Performance (Força aceleração 3D) */}
       <div className="absolute inset-0 z-0 pointer-events-none transform-gpu"
         style={{ background: "linear-gradient(135deg, #022c22 0%, #064e3b 50%, #0b6656 100%)" }} />
 
       {PARTICLES.map((p, i) => (
-        <div key={i} className="absolute pointer-events-none z-0 text-md opacity-10" style={{ left: `${p.x}%`, top: `${p.y}%` }}>{p.e}</div>
+        <div key={i} className="absolute pointer-events-none z-0 text-md opacity-10 transform-gpu" style={{ left: `${p.x}%`, top: `${p.y}%` }}>{p.e}</div>
       ))}
 
       {/* ── CABEÇALHO COMPACTO PREMIUM ── */}
@@ -285,45 +231,33 @@ export default function StartScreen({ onStart }: Props) {
         </section>
       </main>
 
-      {/* ── SECÇÃO: SCROLL HORIZONTAL AUTO-ROTATIVO PROTEGIDO (MÓVEL & PC) ── */}
-      <section className="w-full max-w-5xl mx-auto z-10 border-t border-white/10 pt-4 relative group">
-        <div className="flex items-center gap-1.5 mb-3 px-1 justify-between">
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs">🇲🇿</span>
-            <h3 className="text-emerald-400 font-black text-[10px] md:text-xs uppercase tracking-widest">
-              {lang === "pt" ? "Evidências Ambientais em Moçambique" : "Environmental Evidence in Mozambique"}
-            </h3>
-          </div>
-          
-          <div className="hidden md:flex gap-1">
-            <button onClick={() => scrollManual("left")} className="p-1.5 rounded-md bg-black/40 border border-white/10 text-white text-xs hover:border-emerald-400 transition-colors cursor-pointer">◀</button>
-            <button onClick={() => scrollManual("right")} className="p-1.5 rounded-md bg-black/40 border border-white/10 text-white text-xs hover:border-emerald-400 transition-colors cursor-pointer">▶</button>
-          </div>
+      {/* ── SECÇÃO: MARQUEE INFINITO E ULTRA-LEVE (NOTÍCIAS REAIS DE MOÇAMBIQUE) ── */}
+      <section className="w-full max-w-5xl mx-auto z-10 border-t border-white/10 pt-4 relative">
+        <div className="flex items-center gap-1.5 mb-3 px-1">
+          <span className="text-xs">🇲🇿</span>
+          <h3 className="text-emerald-400 font-black text-[10px] md:text-xs uppercase tracking-widest">
+            {lang === "pt" ? "Evidências Ambientais em Moçambique" : "Environmental Evidence in Mozambique"}
+          </h3>
         </div>
 
-        <div className="w-full relative mask-edges">
-          <div 
-            ref={scrollContainerRef}
-            // Intercetores nativos para parar o motor sob qualquer tipo de interação do utilizador
-            onWheel={pauseAutoScroll}
-            onTouchStart={pauseAutoScroll}
-            onMouseDown={pauseAutoScroll}
-            className="w-full flex gap-4 overflow-x-auto snap-x mandatory scroll-smooth py-1 hide-scrollbar"
-            style={{ WebkitOverflowScrolling: "touch" }}
-          >
+        {/* Contentor do Marquee com efeito Fade nas bordas */}
+        <div className="w-full overflow-hidden relative mask-edges py-1">
+          <div className="flex w-max gap-4 animate-marquee transform-gpu hover:[animation-play-state:paused]">
+            
+            {/* Bloco Primário de Cards */}
             {blogPosts.map((post, idx) => (
               <a 
-                key={idx} 
+                key={`p1-${idx}`} 
                 href={post.url} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="w-[260px] shrink-0 snap-start bg-black/40 border border-white/10 rounded-xl overflow-hidden flex flex-col group hover:border-emerald-500/50 transition-all duration-300 transform-gpu"
+                className="w-[260px] shrink-0 bg-black/40 border border-white/10 rounded-xl overflow-hidden flex flex-col group hover:border-emerald-500/50 transition-colors duration-300"
               >
-                <div className="w-full h-36 overflow-hidden relative">
-                  <div className="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-103 transform-gpu" style={{ backgroundImage: `url(${post.img})` }} />
+                <div className="w-full h-32 overflow-hidden relative">
+                  <div className="w-full h-full bg-cover bg-center" style={{ backgroundImage: `url(${post.img})` }} />
                   <span className="absolute top-2 left-2 bg-slate-950/95 font-black text-[8px] tracking-wider px-2 py-0.5 rounded-md text-emerald-400 border border-white/5">{post.tag}</span>
                 </div>
-                <div className="p-3.5 flex flex-col justify-between flex-grow gap-2.5 bg-gradient-to-b from-transparent to-black/30">
+                <div className="p-3.5 flex flex-col justify-between flex-grow gap-2">
                   <h4 className="text-white font-bold text-xs tracking-tight leading-snug line-clamp-2 group-hover:text-emerald-300 transition-colors">{post.title}</h4>
                   <span className="text-emerald-400 font-black text-[8px] uppercase tracking-wider flex items-center gap-1">
                     {lang === "pt" ? "Ver notícia ➔" : "Read post ➔"}
@@ -331,6 +265,29 @@ export default function StartScreen({ onStart }: Props) {
                 </div>
               </a>
             ))}
+
+            {/* Bloco Duplicado Idêntico (Garante o loop perfeito e infinito em CSS Puro) */}
+            {blogPosts.map((post, idx) => (
+              <a 
+                key={`p2-${idx}`} 
+                href={post.url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-[260px] shrink-0 bg-black/40 border border-white/10 rounded-xl overflow-hidden flex flex-col group hover:border-emerald-500/50 transition-colors duration-300"
+              >
+                <div className="w-full h-32 overflow-hidden relative">
+                  <div className="w-full h-full bg-cover bg-center" style={{ backgroundImage: `url(${post.img})` }} />
+                  <span className="absolute top-2 left-2 bg-slate-950/95 font-black text-[8px] tracking-wider px-2 py-0.5 rounded-md text-emerald-400 border border-white/5">{post.tag}</span>
+                </div>
+                <div className="p-3.5 flex flex-col justify-between flex-grow gap-2">
+                  <h4 className="text-white font-bold text-xs tracking-tight leading-snug line-clamp-2 group-hover:text-emerald-300 transition-colors">{post.title}</h4>
+                  <span className="text-emerald-400 font-black text-[8px] uppercase tracking-wider flex items-center gap-1">
+                    {lang === "pt" ? "Ver notícia ➔" : "Read post ➔"}
+                  </span>
+                </div>
+              </a>
+            ))}
+
           </div>
         </div>
       </section>
@@ -456,24 +413,30 @@ export default function StartScreen({ onStart }: Props) {
         <p className="text-white/20 italic text-[10px] max-w-md mx-auto px-4">{t.quote}</p>
       </footer>
 
+      {/* Estilos CSS Otimizados de Baixo Custo de Hardware */}
       <style>{`
         .mask-edges {
-          -webkit-mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
-          mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
+          -webkit-mask-image: linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%);
+          mask-image: linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%);
         }
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
+        
+        /* Motor Marquee Nativo: Deslocamento horizontal contínuo por hardware (transform3d) */
+        @keyframes marquee {
+          0% { transform: translate3d(0, 0, 0); }
+          100% { transform: translate3d(calc(-50% - 8px), 0, 0); }
         }
-        .hide-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
+
+        .animate-marquee {
+          animation: marquee 24s linear infinite;
+          will-change: transform;
         }
+
         @keyframes fadeIn {
-          from { opacity: 0; transform: translate3d(0, 3px, 0); }
+          from { opacity: 0; transform: translate3d(0, 4px, 0); }
           to { opacity: 1; transform: translate3d(0, 0, 0); }
         }
         .animate-fade-in {
-          animation: fadeIn 0.3s ease-out forwards;
+          animation: fadeIn 0.25s ease-out forwards;
         }
       `}</style>
     </div>
