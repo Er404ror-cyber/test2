@@ -63,15 +63,6 @@ const QUIZ_QUESTIONS = {
       level: "Médio",
       consequence: "A destruição dos mangais deixa as cidades costeiras (como Beira e Maputo) totalmente desprotegidas contra o avanço do mar e tempestades severas.",
       solution: "Participar ou apoiar campanhas locais de reflorestamento costeiro (como os projetos da BIOFUND) e evitar a destruição dessas árvores para carvão."
-    },
-    {
-      q: "O que acontece quando descartamos plásticos de forma incorreta nas nossas praias?",
-      options: ["Decompõem-se em poucos dias", "Nutrem o solo marinho", "Fragmentam-se em microplásticos que contaminam os peixes"],
-      correct: 2,
-      category: "♻️ GESTÃO DE RESÍDUOS",
-      level: "Fácil",
-      consequence: "Os plásticos nunca desaparecem; quebram-se em partículas invisíveis (microplásticos). Os peixes comem essas partículas e, eventualmente, elas chegam ao nosso prato, prejudicando a saúde humana.",
-      solution: "Recusar plásticos de uso único, recolher resíduos quando visita a praia e apoiar iniciativas de economia circular que recolhem lixo urbano."
     }
   ],
   en: [
@@ -97,10 +88,10 @@ export default function StartScreen({ onStart }: Props) {
   const [selectedAns, setSelectedAns] = useState<number | null>(null);
   const [showQuizFact, setShowQuizFact] = useState(false);
 
-  // Referência para o container de scroll nativo estável
+  // Estados e referências para controlo do Autoscroll Avançado
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [isUserScrolling, setIsUserScrolling] = useState(false);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isUserInteracting = useRef(false);
+  const interactionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const t = TRANSLATIONS[lang];
   const canPlay = name.trim().length >= 2;
@@ -110,6 +101,7 @@ export default function StartScreen({ onStart }: Props) {
     onStart(name.trim(), lang);
   }, [name, lang, canPlay, onStart]);
 
+  // Ciclo das dicas de topo
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentInsightIdx((prev) => (prev + 1) % ECO_INSIGHTS[lang].length);
@@ -117,43 +109,54 @@ export default function StartScreen({ onStart }: Props) {
     return () => clearInterval(interval);
   }, [lang]);
 
-  // Efeito de Autoscroll Seguro e Fluido (Não intrusivo)
+  // Função centralizada para parar temporariamente o autoscroll
+  const pauseAutoScroll = useCallback(() => {
+    isUserInteracting.current = true;
+    
+    if (interactionTimeoutRef.current) {
+      clearTimeout(interactionTimeoutRef.current);
+    }
+
+    // Devolve o controlo ao motor de autoscroll após 8 segundos de calma absoluta
+    interactionTimeoutRef.current = setTimeout(() => {
+      isUserInteracting.current = false;
+    }, 8000);
+  }, []);
+
+  // Motor do Autoscroll Autónomo Otimizado
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
 
-    const autoScroll = setInterval(() => {
-      // Só avança se o utilizador não estiver ativamente a mexer ou a ver de perto
-      if (isUserScrolling) return;
+    const runAutoScroll = () => {
+      // Bloqueia preventivamente o movimento automático se houver toque ou arrasto ativo
+      if (isUserInteracting.current) return;
 
+      const cardWidth = 276; // Largura exata do card + gap (260px + 16px gap)
       const maxScroll = container.scrollWidth - container.clientWidth;
-      if (container.scrollLeft >= maxScroll - 10) {
+
+      // Se atingir a borda direita final, reinicia suavemente para o zero
+      if (container.scrollLeft >= maxScroll - 15) {
         container.scrollTo({ left: 0, behavior: "smooth" });
       } else {
-        container.scrollBy({ left: 240, behavior: "smooth" });
+        container.scrollBy({ left: cardWidth, behavior: "smooth" });
       }
-    }, 5000);
+    };
 
-    return () => clearInterval(autoScroll);
-  }, [isUserScrolling]);
+    const scrollInterval = setInterval(runAutoScroll, 4000);
 
-  // Deteta interações para pausar o motor automático imediatamente
-  const handleUserInteraction = () => {
-    setIsUserScrolling(true);
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    
-    // Devolve o controlo ao motor automático após 8 segundos de inatividade completa
-    timeoutRef.current = setTimeout(() => {
-      setIsUserScrolling(false);
-    }, 8000);
-  };
+    return () => {
+      clearInterval(scrollInterval);
+      if (interactionTimeoutRef.current) clearTimeout(interactionTimeoutRef.current);
+    };
+  }, []);
 
   const scrollManual = (direction: "left" | "right") => {
-    handleUserInteraction();
+    pauseAutoScroll();
     const container = scrollContainerRef.current;
     if (!container) return;
-    const offset = direction === "left" ? -280 : 280;
-    container.scrollBy({ left: offset, behavior: "smooth" });
+    const cardWidth = direction === "left" ? -276 : 276;
+    container.scrollBy({ left: cardWidth, behavior: "smooth" });
   };
 
   const showerFeedback = useMemo(() => {
@@ -225,8 +228,6 @@ export default function StartScreen({ onStart }: Props) {
 
       {/* ── LAYOUT CENTRAL PRINCIPAL ── */}
       <main className="w-full max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-5 z-10 relative items-stretch">
-        
-        {/* Painel Informativo Esquerdo */}
         <section className="lg:col-span-7 flex flex-col gap-4 justify-between w-full">
           <div className="bg-black/20 border border-white/10 rounded-xl p-4 backdrop-blur-md">
             <h2 className="text-white font-black text-xs md:text-sm uppercase tracking-wider flex items-center gap-2">
@@ -239,7 +240,6 @@ export default function StartScreen({ onStart }: Props) {
             </p>
           </div>
 
-          {/* Missões */}
           <div className="grid grid-cols-3 gap-2.5">
             {t.missions.map((m, i) => (
               <div key={`${lang}-${i}`} className="rounded-xl p-3 flex flex-col items-center text-center border border-white/5 bg-black/20 backdrop-blur-xs justify-center">
@@ -253,7 +253,6 @@ export default function StartScreen({ onStart }: Props) {
           </div>
         </section>
 
-        {/* Caixa de Entrada de Login */}
         <section className="lg:col-span-5 w-full flex flex-col justify-center">
           <div className="w-full bg-black/30 rounded-xl p-5 flex flex-col justify-center gap-4 border border-white/10 shadow-xl backdrop-blur-md h-full">
             <div className="text-center">
@@ -286,7 +285,7 @@ export default function StartScreen({ onStart }: Props) {
         </section>
       </main>
 
-      {/* ── SECÇÃO: NOVO SCROLL HORIZONTAL SUPER SEGURO (MÓVEL & PC) ── */}
+      {/* ── SECÇÃO: SCROLL HORIZONTAL AUTO-ROTATIVO PROTEGIDO (MÓVEL & PC) ── */}
       <section className="w-full max-w-5xl mx-auto z-10 border-t border-white/10 pt-4 relative group">
         <div className="flex items-center gap-1.5 mb-3 px-1 justify-between">
           <div className="flex items-center gap-1.5">
@@ -296,19 +295,19 @@ export default function StartScreen({ onStart }: Props) {
             </h3>
           </div>
           
-          {/* Setas de Apoio Visuais (Excelentes para computadores/ratos) */}
           <div className="hidden md:flex gap-1">
             <button onClick={() => scrollManual("left")} className="p-1.5 rounded-md bg-black/40 border border-white/10 text-white text-xs hover:border-emerald-400 transition-colors cursor-pointer">◀</button>
             <button onClick={() => scrollManual("right")} className="p-1.5 rounded-md bg-black/40 border border-white/10 text-white text-xs hover:border-emerald-400 transition-colors cursor-pointer">▶</button>
           </div>
         </div>
 
-        {/* Ecrã de Visualização Nativa Flexível - Anti-Bugs */}
         <div className="w-full relative mask-edges">
           <div 
             ref={scrollContainerRef}
-            onScroll={handleUserInteraction}
-            onTouchStart={handleUserInteraction}
+            // Intercetores nativos para parar o motor sob qualquer tipo de interação do utilizador
+            onWheel={pauseAutoScroll}
+            onTouchStart={pauseAutoScroll}
+            onMouseDown={pauseAutoScroll}
             className="w-full flex gap-4 overflow-x-auto snap-x mandatory scroll-smooth py-1 hide-scrollbar"
             style={{ WebkitOverflowScrolling: "touch" }}
           >
@@ -318,7 +317,7 @@ export default function StartScreen({ onStart }: Props) {
                 href={post.url} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="w-[260px] md:w-[290px] shrink-0 snap-start bg-black/40 border border-white/10 rounded-xl overflow-hidden flex flex-col group hover:border-emerald-500/50 transition-all duration-300 transform-gpu"
+                className="w-[260px] shrink-0 snap-start bg-black/40 border border-white/10 rounded-xl overflow-hidden flex flex-col group hover:border-emerald-500/50 transition-all duration-300 transform-gpu"
               >
                 <div className="w-full h-36 overflow-hidden relative">
                   <div className="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-103 transform-gpu" style={{ backgroundImage: `url(${post.img})` }} />
@@ -346,8 +345,7 @@ export default function StartScreen({ onStart }: Props) {
                 {activeQuiz.category}
               </span>
               <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
-                activeQuiz.level === "Fácil" || activeQuiz.level === "Easy" ? "bg-teal-950 text-teal-400 border border-teal-500/30" :
-                activeQuiz.level === "Médio" || activeQuiz.level === "Medium" ? "bg-amber-950 text-amber-400 border border-amber-500/30" : "bg-red-950 text-red-400 border border-red-500/30"
+                activeQuiz.level === "Fácil" || activeQuiz.level === "Easy" ? "bg-teal-950 text-teal-400 border border-teal-500/30" : "bg-amber-950 text-amber-400 border border-amber-500/30"
               }`}>
                 {activeQuiz.level}
               </span>
@@ -460,8 +458,8 @@ export default function StartScreen({ onStart }: Props) {
 
       <style>{`
         .mask-edges {
-          -webkit-mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
-          mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
+          -webkit-mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
+          mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
         }
         .hide-scrollbar::-webkit-scrollbar {
           display: none;
