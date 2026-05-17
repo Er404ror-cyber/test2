@@ -16,8 +16,8 @@ const ThrowingChild = React.memo(({ throwing }: { throwing: boolean }) => {
       <rect x="18" y="32" width="28" height="34" rx="9" fill="#10b981" />
       <line x1="18" y1="42" x2="5" y2="56" stroke="#fbbf24" strokeWidth="9" strokeLinecap="round" />
       {throwing
-        ?<line x1="50" y1="36" x2="62" y2="20" stroke="#fbbf24" strokeWidth="9" strokeLinecap="round" />
-        :<line x1="50" y1="44" x2="63" y2="58" stroke="#fbbf24" strokeWidth="9" strokeLinecap="round" />}
+        ? <line x1="50" y1="36" x2="62" y2="20" stroke="#fbbf24" strokeWidth="9" strokeLinecap="round" />
+        : <line x1="50" y1="44" x2="63" y2="58" stroke="#fbbf24" strokeWidth="9" strokeLinecap="round" />}
       <line x1="25" y1="66" x2="20" y2="94" stroke="#059669" strokeWidth="11" strokeLinecap="round" />
       <line x1="39" y1="66" x2="44" y2="94" stroke="#059669" strokeWidth="11" strokeLinecap="round" />
       <ellipse cx="17" cy="97" rx="8" ry="4.5" fill="#1e1b4b" />
@@ -52,6 +52,9 @@ export default function TrashScene({ onComplete, totalPoints, lang }: Props) {
   const [throwing, setThrowing] = useState(false);
   const [activeBin, setActiveBin] = useState<string|null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  
+  // Armazena os itens onde o utilizador errou para criar um sumário ecológico no fim
+  const [wrongItems, setWrongItems] = useState<TrashItem[]>([]);
 
   const current = items[idx];
   const isInteracting = throwing || feedback !== null || showSuccess;
@@ -63,14 +66,19 @@ export default function TrashScene({ onComplete, totalPoints, lang }: Props) {
     setThrowing(true); 
     setActiveBin(binId);
     
+    // Feedback rápido na tela apenas visual/sonoro sem travar com explicações longas
     setTimeout(() => {
-      setFeedback({ ok, msg: ok ? t.trashCorrect : t.trashWrong(t.bins[current.bin]) });
-    }, 150);
+      setFeedback({ ok, msg: ok ? t.trashCorrect : "❌" });
+    }, 100);
 
-    const delayTime = ok ? 1500 : 4800;
-
+    // Tempo de transição reduzido e unificado para manter a jogabilidade dinâmica e fluida
     setTimeout(() => {
       const nc = correct + (ok ? 1 : 0);
+      
+      if (!ok) {
+        setWrongItems(prev => [...prev, current]);
+      }
+
       setFeedback(null); 
       setThrowing(false); 
       setActiveBin(null);
@@ -79,14 +87,15 @@ export default function TrashScene({ onComplete, totalPoints, lang }: Props) {
       if (ni >= items.length) {
         setCorrect(nc); 
         setShowSuccess(true);
+        // O utilizador tem tempo de ler o sumário final; o trigger de saída é estendido
         const pts = Math.round((nc / items.length) * 100);
-        setTimeout(() => onComplete(pts, t.trashScore(nc, items.length)), 1600);
+        setTimeout(() => onComplete(pts, t.trashScore(nc, items.length)), wrongItems.length > 0 ? 7000 : 2500);
       } else { 
         setCorrect(nc); 
         setIdx(ni); 
       }
-    }, delayTime);
-  }, [isInteracting, current, idx, correct, items.length, t, onComplete]);
+    }, 800);
+  }, [isInteracting, current, idx, correct, items.length, t, onComplete, wrongItems.length]);
 
   const clouds = useMemo(() => [
     { x: 5, y: 6, d: 6 },
@@ -154,7 +163,7 @@ export default function TrashScene({ onComplete, totalPoints, lang }: Props) {
           <ThrowingChild throwing={throwing} />
         </motion.div>
 
-        {/* Card de Objeto a ser Arrastado / Escolhido */}
+        {/* Card do Objeto Ativo */}
         <div className="relative flex items-center justify-center min-w-[125px] sm:min-w-[160px]">
           <AnimatePresence mode="wait">
             {current && !feedback && (
@@ -179,37 +188,27 @@ export default function TrashScene({ onComplete, totalPoints, lang }: Props) {
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
 
-        {/* Pop-up Centralizado de Feedback (Modo Instrução Temporário) */}
-        <AnimatePresence>
-          {feedback && (
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0, y: -10 }} 
-              animate={{ scale: 1, opacity: 1, y: 0 }} 
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="absolute inset-x-4 md:left-1/2 md:-translate-x-1/2 top-4 md:max-w-md bg-white rounded-3xl p-5 shadow-2xl z-40 border-3 flex flex-col gap-2.5 items-center text-center transform-gpu"
-              style={{ borderColor: feedback.ok ? "#22c55e" : "#ef4444" }}
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-2xl">{feedback.ok ? "🎯" : "💡"}</span>
-                <h4 className="font-black text-slate-800 text-sm md:text-base">{feedback.msg}</h4>
-              </div>
-              
-              {!feedback.ok && current?.explanation && (
-                <p className="text-slate-600 text-xs font-semibold leading-relaxed border-t border-slate-100 pt-2.5 w-full entry-animation">
-                  {current.explanation[lang]}
-                </p>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
+          {/* Feedback Express de Ação Concluída */}
+          <AnimatePresence>
+            {feedback && (
+              <motion.div
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ scale: 1.2, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                className={`absolute text-2xl font-black px-4 py-2 rounded-full backdrop-blur-md shadow-lg ${feedback.ok ? "text-emerald-600 bg-emerald-50/90" : "text-rose-600 bg-rose-50/90"}`}
+              >
+                {feedback.msg}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
       {/* Zona Inferior: Grelha de Lixeiras */}
       <div 
         className="relative z-20 flex gap-2.5 px-4 pb-5 transition-opacity duration-200"
-        style={{ pointerEvents: isInteracting ? "none" : "auto" }} // Bloqueia clicks paralelos imediatamente
+        style={{ pointerEvents: isInteracting ? "none" : "auto" }}
       >
         {BINS_CONFIG.map(bin => {
           const binLabel = t.bins[bin.id];
@@ -257,39 +256,77 @@ export default function TrashScene({ onComplete, totalPoints, lang }: Props) {
         })}
       </div>
 
-      {/* Modal de Sucesso de Fim de Ronda */}
+      {/* Modal de Sucesso + Painel de Insights Ecológicos Otimizado no Fim */}
       <AnimatePresence>
         {showSuccess && (
           <motion.div 
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-slate-900/40"
+            className="absolute inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-slate-950/60 p-4"
           >
             <motion.div 
-              initial={{ scale: 0.85, opacity: 0 }} 
-              animate={{ scale: 1, opacity: 1 }} 
+              initial={{ scale: 0.9, opacity: 0, y: 20 }} 
+              animate={{ scale: 1, opacity: 1, y: 0 }} 
               transition={{ type: "spring", bounce: 0.25 }}
-              className="bg-white rounded-[2.5rem] p-8 text-center shadow-2xl max-w-xs w-full mx-4 transform-gpu border border-slate-100"
+              className="bg-white rounded-[2.3rem] p-5 md:p-6 text-center shadow-2xl max-w-sm w-full transform-gpu border border-slate-100 flex flex-col gap-3 max-h-[92vh] overflow-hidden"
             >
-              <div className="text-6xl mb-2 dynamic-bounce">🌱</div>
-              <h3 className="font-black text-green-700 mb-1" style={{ fontSize: "clamp(20px,5.5vw,26px)" }}>
-                {t.trashSuccess}
-              </h3>
-              <p className="text-slate-500 font-bold text-sm tracking-wide">
-                {t.trashScore(correct, items.length)}
+              <div>
+                <div className="text-5xl mb-1 dynamic-bounce">🌱</div>
+                <h3 className="font-black text-green-700 tracking-tight text-xl">
+                  {t.trashSuccess}
+                </h3>
+                <p className="text-slate-500 font-bold text-xs tracking-wide mt-0.5">
+                  {t.trashScore(correct, items.length)}
+                </p>
+              </div>
+
+              {/* Bloco Condicional de Aprendizado Avançado */}
+              {wrongItems.length > 0 ? (
+                <div className="flex-1 overflow-y-auto flex flex-col gap-2 text-left px-1 py-1 custom-scrollbar">
+                  <p className="text-slate-400 font-black text-[10px] tracking-widest uppercase border-b border-slate-100 pb-1">
+                    {lang === "pt" ? "Recapitulação Ecológica:" : "Eco-Recap Insights:"}
+                  </p>
+                  {wrongItems.map((item) => (
+                    <div key={item.id} className="bg-slate-50 border border-slate-100 p-2.5 rounded-2xl flex gap-2.5 items-start">
+                      <span className="text-xl bg-white p-1 rounded-xl shadow-xs shrink-0">{item.emoji}</span>
+                      <div className="flex flex-col gap-0.5">
+                        <h5 className="font-bold text-slate-800 text-xs">
+                          {item.name} → <span className="text-blue-600 font-black">{t.bins[item.bin]}</span>
+                        </h5>
+                        <p className="text-slate-500 text-[11px] font-medium leading-relaxed">
+                          {item.explanation[lang]}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-emerald-50 rounded-2xl p-4 my-2 border border-emerald-100">
+                  <p className="text-emerald-800 text-xs font-bold leading-normal">
+                    {lang === "pt" 
+                      ? "Incrível! Separaste todos os resíduos perfeitamente à primeira tentativa. O ecossistema agradece!" 
+                      : "Flawless sorting! You categorized every item perfectly on the first try. Nature thanks you!"}
+                  </p>
+                </div>
+              )}
+
+              <p className="text-emerald-500 font-black text-lg animate-pulse mt-1">
+                +{Math.round((correct / items.length) * 100)} ⭐
               </p>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* CSS Utilitário embutido micro-otimizado */}
       <style>{`
         .inner-shadow { box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.06); }
         .pulse-subtle { animation: softPulse 2.5s infinite ease-in-out; }
         .floating-emoji { display: inline-block; animation: floatEff 3s infinite ease-in-out; }
-        .entry-animation { animation: cleanFade 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         
         @keyframes softPulse {
           0%, 100% { transform: scale(1); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
@@ -299,7 +336,6 @@ export default function TrashScene({ onComplete, totalPoints, lang }: Props) {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
           50% { transform: translateY(-4px) rotate(2deg); }
         }
-        @keyframes cleanFade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
       `}</style>
     </div>
   );
