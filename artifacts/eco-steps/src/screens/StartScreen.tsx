@@ -31,27 +31,86 @@ const ECO_INSIGHTS = {
 
 const MOZ_BLOG_POSTS = {
   pt: [
-    { title: "Município de Maputo lança concurso público para o encerramento da Lixeira de Hulene", tag: "♻️ GESTÃO DE RESÍDUOS", img: "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=400&q=80", url: "https://www.diarioeconomico.co.mz/" },
-    { title: "FUNAE investe na eletrificação através de sistemas solares fotovoltaicos em Nampula", tag: "⚡ ENERGIA SOLAR", img: "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?auto=format&fit=crop&w=400&q=80", url: "https://www.funae.co.mz/" },
-    { title: "BIOFUND investe no restauro e conservação de ecossistemas de mangais na costa nacional", tag: "🌿 BIODIVERSIDADE", img: "https://images.unsplash.com/photo-1621574539437-4b7cb63120b8?auto=format&fit=crop&w=400&q=80", url: "https://www.biofund.org.mz/" },
-    { title: "Sistemas de monitoria de bacias hidrográficas são reforçados contra cheias e ciclones", tag: "💧 RECURSOS HÍDRICOS", img: "https://images.unsplash.com/photo-1468436139062-f60a71c5c892?auto=format&fit=crop&w=400&q=80", url: "https://www.jornalnoticias.co.mz/" }
+    { title: "Município de Maputo lança concurso público para o encerramento da Lixeira de Hulene", tag: "♻️ GESTÃO DE RESÍDUOS", img: "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=600&q=80", url: "https://www.diarioeconomico.co.mz/" },
+    { title: "FUNAE investe na eletrificação através de sistemas solares fotovoltaicos em Nampula", tag: "⚡ ENERGIA SOLAR", img: "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?auto=format&fit=crop&w=600&q=80", url: "https://www.funae.co.mz/" },
+    { title: "BIOFUND investe no restauro e conservação de ecossistemas de mangais na costa nacional", tag: "🌿 BIODIVERSIDADE", img: "https://images.unsplash.com/photo-1621574539437-4b7cb63120b8?auto=format&fit=crop&w=600&q=80", url: "https://www.biofund.org.mz/" },
+    { title: "Sistemas de monitoria de bacias hidrográficas são reforçados contra cheias e ciclones", tag: "💧 RECURSOS HÍDRICOS", img: "https://images.unsplash.com/photo-1468436139062-f60a71c5c892?auto=format&fit=crop&w=600&q=80", url: "https://www.jornalnoticias.co.mz/" }
   ],
   en: [
-    { title: "Maputo municipality launches international tender to close down Hulene landfill", tag: "♻️ WASTE MANAGEMENT", img: "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=400&q=80", url: "https://www.diarioeconomico.co.mz/" },
-    { title: "FUNAE drives off-grid rural electrification using solar infrastructure in Nampula", tag: "⚡ RENEWABLE ENERGY", img: "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?auto=format&fit=crop&w=400&q=80", url: "https://www.funae.co.mz/" },
-    { title: "BIOFUND funds strategic preservation and mangrove restoration along the coastline", tag: "🌿 BIODIVERSIDADE", img: "https://images.unsplash.com/photo-1621574539437-4b7cb63120b8?auto=format&fit=crop&w=400&q=80", url: "https://www.biofund.org.mz/en/" },
-    { title: "Hydrographic basin monitoring systems reinforced to prevent severe climate impacts", tag: "💧 CLIMATE ACTION", img: "https://images.unsplash.com/photo-1468436139062-f60a71c5c892?auto=format&fit=crop&w=400&q=80", url: "https://www.jornalnoticias.co.mz/" }
+    { title: "Maputo municipality launches international tender to close down Hulene landfill", tag: "♻️ WASTE MANAGEMENT", img: "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=600&q=80", url: "https://www.diarioeconomico.co.mz/" },
+    { title: "FUNAE drives off-grid rural electrification using solar infrastructure in Nampula", tag: "⚡ RENEWABLE ENERGY", img: "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?auto=format&fit=crop&w=600&q=80", url: "https://www.funae.co.mz/" },
+    { title: "BIOFUND funds strategic preservation and mangrove restoration along the coastline", tag: "🌿 BIODIVERSIDADE", img: "https://images.unsplash.com/photo-1621574539437-4b7cb63120b8?auto=format&fit=crop&w=600&q=80", url: "https://www.biofund.org.mz/en/" },
+    { title: "Hydrographic basin monitoring systems reinforced to prevent severe climate impacts", tag: "💧 CLIMATE ACTION", img: "https://images.unsplash.com/photo-1468436139062-f60a71c5c892?auto=format&fit=crop&w=600&q=80", url: "https://www.jornalnoticias.co.mz/" }
   ]
 };
 
 const QUIZ_QUESTIONS = {
   pt: [
-    { q: "Qual destas fontes de energia é renovável e muito abundante em Moçambique?", options: ["Carvão Mineral", "Energia Solar Fotovoltaica", "Gás Natural"], correct: 1, fact: "Moçambique tem um enorme potencial solar, especialmente nas regiões centro e norte, crucial para a eletrificação rural de zonas isoladas." },
-    { q: "O que acontece quando descartamos plásticos de forma incorreta nas nossas praias?", options: ["Decompõem-se em poucos dias", "Nutrem o solo marinho", "Fragmentam-se em microplásticos que contaminam os peixes"], correct: 2, fact: "Os plásticos nunca desaparecem por completo; quebram-se em partículas minúsculas que entram na cadeia alimentar marinha e humana." }
+    {
+      q: "Qual destas fontes de energia é renovável e muito abundante em Moçambique?",
+      options: ["Carvão Mineral", "Energia Solar Fotovoltaica", "Gás Natural"],
+      correct: 1,
+      category: "⚡ ENERGIA",
+      level: "Fácil",
+      consequence: "O uso continuado de combustíveis fósseis (gás e carvão) acelera o aquecimento global, provocando ciclones cada vez mais destrutivos na nossa costa.",
+      solution: "Apoiar a eletrificação rural descentralizada. Moçambique possui um dos maiores potenciais de radiação solar da África Austral, ideal para painéis fotovoltaicos isolados."
+    },
+    {
+      q: "Por que razão os mangais ao longo da costa moçambicana são considerados ecossistemas vitais?",
+      options: ["Servem apenas para extração de madeira", "Protegem contra a erosão e absorvem o impacto de ciclones", "Bloqueiam a passagem de navios comerciais"],
+      correct: 1,
+      category: "🌿 BIODIVERSIDADE",
+      level: "Médio",
+      consequence: "A destruição dos mangais deixa as cidades costeiras (como Beira e Maputo) totalmente desprotegidas contra o avanço do mar e tempestades severas.",
+      solution: "Participar ou apoiar campanhas locais de reflorestamento costeiro (como os projetos da BIOFUND) e evitar a destruição dessas árvores para carvão."
+    },
+    {
+      q: "O que acontece quando descartamos plásticos de forma incorreta nas nossas praias?",
+      options: ["Decompõem-se em poucos dias", "Nutrem o solo marinho", "Fragmentam-se em microplásticos que contaminam os peixes"],
+      correct: 2,
+      category: "♻️ GESTÃO DE RESÍDUOS",
+      level: "Fácil",
+      consequence: "Os plásticos nunca desaparecem; quebram-se em partículas invisíveis (microplásticos). Os peixes comem essas partículas e, eventualmente, elas chegam ao nosso prato, prejudicando a saúde humana.",
+      solution: "Recusar plásticos de uso único, recolher resíduos quando visita a praia e apoiar iniciativas de economia circular que recolhem lixo urbano."
+    },
+    {
+      q: "Qual é o maior desafio ambiental associado a lixeiras a céu aberto, como a antiga Lixeira de Hulene?",
+      options: ["Poluição visual apenas", "Contaminação de águas subterrâneas e libertação de gás metano", "Atração de aves migratórias benéficas"],
+      correct: 1,
+      category: "🚨 CRISE URBANA",
+      level: "Difícil",
+      consequence: "O lixo em decomposição produz 'lixiviado' (um líquido altamente tóxico) que se infiltra nos lençóis freáticos, contaminando a água consumida pelas comunidades ao redor, além de causar incêndios espontâneos devido ao metano.",
+      solution: "Exigir e apoiar a transição para aterros sanitários controlados e praticar a separação na fonte (compostagem orgânica e reciclagem) para reduzir o volume de resíduos."
+    }
   ],
   en: [
-    { q: "Which of these energy sources is renewable and highly abundant in Mozambique?", options: ["Mineral Coal", "Solar Photovoltaic Energy", "Natural Gas"], correct: 1, fact: "Mozambique possesses vast solar potential, particularly in central and northern regions, key for off-grid rural electrification." },
-    { q: "What happens when plastic is incorrectly discarded on our beaches?", options: ["It decomposes within days", "It provides nutrients to seabed", "It breaks into microplastics that contaminate fish"], correct: 2, fact: "Plastics never fully vanish; they fragment into minute particles that invade the marine food web and eventually our meals." }
+    {
+      q: "Which of these energy sources is renewable and highly abundant in Mozambique?",
+      options: ["Mineral Coal", "Solar Photovoltaic Energy", "Natural Gas"],
+      correct: 1,
+      category: "⚡ ENERGY",
+      level: "Easy",
+      consequence: "Continued reliance on fossil fuels drives climate change, causing increasingly intense and frequent cyclones across the Mozambique Channel.",
+      solution: "Promote off-grid rural solar systems. Mozambique has some of the highest solar radiation levels in Southern Africa, perfect for sustainable development."
+    },
+    {
+      q: "Why are the mangrove forests along the Mozambican coastline considered vital ecosystems?",
+      options: ["They are only useful for timber extraction", "They guard against coastal erosion and buffer cyclone impacts", "They block commercial shipping lanes"],
+      correct: 1,
+      category: "🌿 BIODIVERSITY",
+      level: "Medium",
+      consequence: "Destroying mangroves leaves vulnerable coastal settlements completely exposed to devastating storm surges and extreme sea-level rise.",
+      solution: "Support local coastal restoration campaigns (such as BIOFUND initiatives) and strictly prevent the clearing of mangrove woods for charcoal production."
+    },
+    {
+      q: "What happens when plastic is incorrectly discarded on our beaches?",
+      options: ["It decomposes within days", "It provides nutrients to seabed", "It breaks into microplastics that contaminate fish"],
+      correct: 2,
+      category: "♻️ WASTE MANAGEMENT",
+      level: "Easy",
+      consequence: "Plastics never fully degrade; they break into microscopic pieces. Marine life ingests these microplastics, introducing hazardous toxic compounds into the human food chain.",
+      solution: "Minimize single-use plastics, join community beach cleanups, and champion sustainable waste collection networks."
+    }
   ]
 };
 
@@ -61,9 +120,12 @@ export default function StartScreen({ onStart }: Props) {
   const [showerTime, setShowerTime] = useState<number | "">("");
   const [currentInsightIdx, setCurrentInsightIdx] = useState(0);
   
+  // Estados do Quiz Dinâmico Expandido
   const [quizIdx, setQuizIdx] = useState(0);
   const [selectedAns, setSelectedAns] = useState<number | null>(null);
   const [showQuizFact, setShowQuizFact] = useState(false);
+
+  const [isInteracting, setIsInteracting] = useState(false);
 
   const t = TRANSLATIONS[lang];
   const canPlay = name.trim().length >= 2;
@@ -101,13 +163,13 @@ export default function StartScreen({ onStart }: Props) {
   }, [lang]);
 
   const activeInsight = ECO_INSIGHTS[lang][currentInsightIdx];
-  const activeQuiz = QUIZ_QUESTIONS[lang][quizIdx];
+  const activeQuiz = QUIZ_QUESTIONS[lang][quizIdx] || QUIZ_QUESTIONS[lang][0];
   const blogPosts = MOZ_BLOG_POSTS[lang];
 
   return (
     <div className="w-full min-h-screen relative overflow-x-hidden overflow-y-auto px-4 py-5 md:px-10 md:py-8 select-none bg-slate-950 flex flex-col justify-between gap-6" style={{ fontFamily: "Outfit, sans-serif" }}>
       
-      {/* Background Otimizado (Fixo e com aceleração gráfica) */}
+      {/* Background Otimizado transform-gpu */}
       <div className="absolute inset-0 z-0 pointer-events-none transform-gpu"
         style={{ background: "linear-gradient(135deg, #022c22 0%, #064e3b 50%, #0b6656 100%)" }} />
 
@@ -210,7 +272,7 @@ export default function StartScreen({ onStart }: Props) {
         </section>
       </main>
 
-      {/* ── SECÇÃO: NOTÍCIAS COM SCROLL AUTOMÁTICO VIA GPU (SEM JAVASCRIPT) ── */}
+      {/* ── SECÇÃO: IMAGENS MAIORES COM AUTO-SCROLL INTERATIVO (INTELIGENTE) ── */}
       <section className="w-full max-w-5xl mx-auto z-10 border-t border-white/10 pt-4 relative overflow-hidden">
         <div className="flex items-center gap-1.5 mb-3 px-1 justify-between">
           <div className="flex items-center gap-1.5">
@@ -219,35 +281,42 @@ export default function StartScreen({ onStart }: Props) {
               {lang === "pt" ? "Evidências Ambientais em Moçambique" : "Environmental Evidence in Mozambique"}
             </h3>
           </div>
+          {isInteracting && (
+            <span className="text-[9px] text-amber-400 font-black tracking-wider uppercase animate-pulse bg-amber-950/40 px-2 py-0.5 rounded border border-amber-500/20">
+              {lang === "pt" ? "⏸️ Pausa Tátil Ativa" : "⏸️ Touch Pause Active"}
+            </span>
+          )}
         </div>
 
-        {/* Container infinito por hardware (CSS Track) */}
-        <div className="w-full overflow-hidden relative mask-edges py-1">
-          <div className="flex gap-4 w-max animate-scroll-infinite transform-gpu will-change-transform hover:[animation-play-state:paused]">
-            {/* Bloco Original */}
+        <div className="w-full overflow-hidden relative mask-edges py-1"
+          onMouseEnter={() => setIsInteracting(true)}
+          onMouseLeave={() => setIsInteracting(false)}
+          onTouchStart={() => setIsInteracting(true)}
+          onTouchEnd={() => setIsInteracting(false)}
+        >
+          <div className={`flex gap-4 w-max transform-gpu will-change-transform ${isInteracting ? "animate-scroll-slow" : "animate-scroll-infinite"}`}>
             {blogPosts.map((post, idx) => (
               <a key={`orig-${idx}`} href={post.url} target="_blank" rel="noopener noreferrer"
-                className="w-[240px] md:w-[270px] shrink-0 bg-black/30 border border-white/5 rounded-xl overflow-hidden flex flex-col group hover:border-emerald-500/40 transition-colors">
-                <div className="w-full h-24 overflow-hidden relative">
-                  <div className="w-full h-full bg-cover bg-center transition-transform duration-300 group-hover:scale-103" style={{ backgroundImage: `url(${post.img})` }} />
-                  <span className="absolute top-1.5 left-1.5 bg-slate-950/90 font-black text-[8px] tracking-wider px-1.5 py-0.5 rounded text-white">{post.tag}</span>
+                className="w-[260px] md:w-[300px] shrink-0 bg-black/30 border border-white/5 rounded-xl overflow-hidden flex flex-col group hover:border-emerald-500/40 transition-all duration-300 transform-gpu">
+                <div className="w-full h-36 overflow-hidden relative">
+                  <div className="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105 transform-gpu" style={{ backgroundImage: `url(${post.img})` }} />
+                  <span className="absolute top-2 left-2 bg-slate-950/95 font-black text-[8px] tracking-wider px-2 py-0.5 rounded-md text-emerald-400 border border-white/5">{post.tag}</span>
                 </div>
-                <div className="p-3 flex flex-col justify-between flex-grow gap-2">
-                  <h4 className="text-white font-bold text-[11px] tracking-tight leading-snug line-clamp-2 group-hover:text-emerald-300 transition-colors">{post.title}</h4>
+                <div className="p-3.5 flex flex-col justify-between flex-grow gap-2.5 bg-gradient-to-b from-transparent to-black/20">
+                  <h4 className="text-white font-bold text-xs tracking-tight leading-snug line-clamp-2 group-hover:text-emerald-300 transition-colors">{post.title}</h4>
                   <span className="text-emerald-400 font-black text-[8px] uppercase tracking-wider flex items-center gap-1">{lang === "pt" ? "Ver notícia ➔" : "Read post ➔"}</span>
                 </div>
               </a>
             ))}
-            {/* Réplica Estática Perfeita para evitar saltos ou quebras de render no loop */}
             {blogPosts.map((post, idx) => (
               <a key={`clon-${idx}`} href={post.url} target="_blank" rel="noopener noreferrer"
-                className="w-[240px] md:w-[270px] shrink-0 bg-black/30 border border-white/5 rounded-xl overflow-hidden flex flex-col group hover:border-emerald-500/40 transition-colors">
-                <div className="w-full h-24 overflow-hidden relative">
-                  <div className="w-full h-full bg-cover bg-center" style={{ backgroundImage: `url(${post.img})` }} />
-                  <span className="absolute top-1.5 left-1.5 bg-slate-950/90 font-black text-[8px] tracking-wider px-1.5 py-0.5 rounded text-white">{post.tag}</span>
+                className="w-[260px] md:w-[300px] shrink-0 bg-black/30 border border-white/5 rounded-xl overflow-hidden flex flex-col group hover:border-emerald-500/40 transition-all duration-300 transform-gpu">
+                <div className="w-full h-36 overflow-hidden relative">
+                  <div className="w-full h-full bg-cover bg-center transform-gpu" style={{ backgroundImage: `url(${post.img})` }} />
+                  <span className="absolute top-2 left-2 bg-slate-950/95 font-black text-[8px] tracking-wider px-2 py-0.5 rounded-md text-emerald-400 border border-white/5">{post.tag}</span>
                 </div>
-                <div className="p-3 flex flex-col justify-between flex-grow gap-2">
-                  <h4 className="text-white font-bold text-[11px] tracking-tight leading-snug line-clamp-2">{post.title}</h4>
+                <div className="p-3.5 flex flex-col justify-between flex-grow gap-2.5 bg-gradient-to-b from-transparent to-black/20">
+                  <h4 className="text-white font-bold text-xs tracking-tight leading-snug line-clamp-2">{post.title}</h4>
                   <span className="text-emerald-400 font-black text-[8px] uppercase tracking-wider flex items-center gap-1">{lang === "pt" ? "Ver notícia ➔" : "Read post ➔"}</span>
                 </div>
               </a>
@@ -256,55 +325,100 @@ export default function StartScreen({ onStart }: Props) {
         </div>
       </section>
 
-      {/* ── SECÇÃO: ECO-QUIZ ── */}
+      {/* ── SECÇÃO: ECO-QUIZ ALTAMENTE INFORMATIVO & EXTENDIDO ── */}
       <section className="w-full max-w-5xl mx-auto z-10 border-t border-white/10 pt-4 animate-fade-in">
-        <div className="bg-black/20 border border-white/5 rounded-xl p-4 backdrop-blur-md">
-          <div className="flex justify-between items-center mb-3">
-            <h3 className="text-white font-black text-xs uppercase tracking-wider flex items-center gap-1.5">
-              <span>🧠</span> {lang === "pt" ? "Eco-Quiz Conhecimento" : "Eco-Quiz Knowledge"}
-            </h3>
-            <span className="text-[9px] text-emerald-400 font-bold bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/20">
+        <div className="bg-gradient-to-b from-black/40 to-black/10 border border-white/5 rounded-xl p-4.5 backdrop-blur-md relative overflow-hidden">
+          
+          {/* Cabeçalho do Quiz com Metadados Ricos */}
+          <div className="flex flex-wrap justify-between items-center gap-2 mb-3.5 relative z-10">
+            <div className="flex items-center gap-2">
+              <span className="bg-emerald-400/20 text-emerald-300 border border-emerald-500/30 text-[9px] font-black px-2 py-0.5 rounded-md tracking-wider uppercase">
+                {activeQuiz.category}
+              </span>
+              <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                activeQuiz.level === "Fácil" || activeQuiz.level === "Easy" ? "bg-teal-950 text-teal-400 border border-teal-500/30" :
+                activeQuiz.level === "Médio" || activeQuiz.level === "Medium" ? "bg-amber-950 text-amber-400 border border-amber-500/30" : "bg-red-950 text-red-400 border border-red-500/30"
+              }`}>
+                {activeQuiz.level}
+              </span>
+            </div>
+            <span className="text-[10px] text-emerald-300 font-black bg-emerald-950/80 px-2.5 py-0.5 rounded-md border border-emerald-500/30">
               {quizIdx + 1} / {QUIZ_QUESTIONS[lang].length}
             </span>
           </div>
 
-          <p className="text-white text-xs font-bold mb-3 leading-snug">{activeQuiz.q}</p>
+          <div className="bg-white/5 p-3 rounded-xl mb-3.5 border border-white/5">
+            <p className="text-white text-xs md:text-sm font-bold leading-relaxed">{activeQuiz.q}</p>
+          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+          {/* Opções de Resposta Alternativas */}
+          <div className="grid grid-cols-1 gap-2 relative z-10">
             {activeQuiz.options.map((opt, oIdx) => {
-              let btnStyle = "bg-black/40 border-white/10 hover:border-emerald-500/30 text-white/90";
+              const isSelected = selectedAns === oIdx;
+              const isCorrect = oIdx === activeQuiz.correct;
+              
+              let btnStyle = "bg-black/30 border-white/10 text-white/90 hover:bg-white/5 hover:border-emerald-500/30 active:scale-995";
+              let icon = "⚪";
+
               if (selectedAns !== null) {
-                if (oIdx === activeQuiz.correct) btnStyle = "bg-emerald-500/20 border-emerald-500 text-emerald-300";
-                else if (selectedAns === oIdx) btnStyle = "bg-red-500/20 border-red-500 text-red-300";
-                else btnStyle = "bg-black/10 border-white/5 text-white/40 opacity-40";
+                if (isCorrect) {
+                  btnStyle = "bg-emerald-500/15 border-emerald-500 text-emerald-300 font-bold shadow-md shadow-emerald-950/40";
+                  icon = "🎉";
+                } else if (isSelected) {
+                  btnStyle = "bg-red-500/15 border-red-500 text-red-300 opacity-90";
+                  icon = "❌";
+                } else {
+                  btnStyle = "bg-black/20 border-white/5 text-white/30 opacity-30 cursor-not-allowed";
+                  icon = "▪️";
+                }
               }
+
               return (
                 <button key={oIdx} disabled={selectedAns !== null} onClick={() => handleAnswerQuiz(oIdx)}
-                  className={`p-2.5 rounded-lg border text-left text-xs font-semibold transition-all cursor-pointer transform-gpu ${btnStyle}`}>
-                  {opt}
+                  className={`p-3 rounded-xl border text-left text-xs font-semibold transition-all duration-150 flex items-center justify-between gap-3 cursor-pointer transform-gpu ${btnStyle}`}>
+                  <span className="leading-tight">{opt}</span>
+                  <span className="text-xs shrink-0">{icon}</span>
                 </button>
               );
             })}
           </div>
 
+          {/* Dossiê de Informações pós-resposta */}
           {showQuizFact && (
-            <div className="mt-3 p-3 bg-slate-900/60 border border-white/5 rounded-lg animate-fade-in flex flex-col gap-2">
-              <p className="text-[11px] text-slate-200 leading-relaxed">
-                <span className="font-black text-emerald-400 uppercase tracking-wider mr-1 block sm:inline">
-                  {selectedAns === activeQuiz.correct ? (lang === "pt" ? "🎯 Correto!" : "🎯 Spot on!") : "💡 Sabias que?"}
-                </span> 
-                {activeQuiz.fact}
-              </p>
+            <div className="mt-4 p-4 bg-slate-900/95 border border-white/10 rounded-xl animate-fade-in flex flex-col gap-3.5 shadow-2xl relative z-10">
+              
+              <div className="flex items-center gap-2 border-b border-white/10 pb-2">
+                <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded shadow-sm ${
+                  selectedAns === activeQuiz.correct ? "bg-emerald-500 text-slate-950" : "bg-red-500 text-white"
+                }`}>
+                  {selectedAns === activeQuiz.correct ? (lang === "pt" ? "🎯 Acertaste!" : "🎯 Correct!") : (lang === "pt" ? "💡 Ops, incorreto!" : "💡 Incorrect!")}
+                </span>
+                <span className="text-white/40 text-[10px] font-medium">{lang === "pt" ? "Dossiê de Impacto Ambiental" : "Environmental Impact Dossier"}</span>
+              </div>
+
+              {/* Grid de Informação Rica Split */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                <div className="bg-red-500/5 border border-red-500/15 p-3 rounded-lg flex flex-col gap-1">
+                  <span className="text-[9px] font-black tracking-wider text-red-400 uppercase">⚠️ {lang === "pt" ? "Consequência Real" : "Real Consequence"}</span>
+                  <p className="text-[11px] text-slate-300 leading-relaxed font-medium">{activeQuiz.consequence}</p>
+                </div>
+                
+                <div className="bg-emerald-500/5 border border-emerald-500/15 p-3 rounded-lg flex flex-col gap-1">
+                  <span className="text-[9px] font-black tracking-wider text-emerald-400 uppercase">🛠️ {lang === "pt" ? "A Solução Prática" : "Practical Solution"}</span>
+                  <p className="text-[11px] text-slate-300 leading-relaxed font-medium">{activeQuiz.solution}</p>
+                </div>
+              </div>
+
               <button onClick={handleNextQuiz}
-                className="self-end bg-white text-slate-950 font-black text-[10px] uppercase tracking-wider px-2.5 py-1 rounded hover:bg-emerald-400 transition-colors cursor-pointer">
-                {lang === "pt" ? "Seguinte ➔" : "Next ➔"}
+                className="self-end bg-emerald-400 text-slate-950 font-black text-[10px] uppercase tracking-wider px-3.5 py-1.5 rounded-lg hover:bg-white active:scale-95 transition-all cursor-pointer shadow-md mt-1">
+                {lang === "pt" ? "Próxima Pergunta ➔" : "Next Question ➔"}
               </button>
             </div>
           )}
         </div>
       </section>
 
-      {/* ── NOVO POSICIONAMENTO: ECO-CHECK DO CHUVEIRO NA BASE ── */}
+      {/* ── ECO-CHECK DO CHUVEIRO NA BASE ── */}
       <section className="w-full max-w-5xl mx-auto z-10 border-t border-white/10 pt-4 animate-fade-in">
         <div className="w-full bg-black/20 border border-white/5 rounded-xl p-4 backdrop-blur-md">
           <h4 className="text-white font-black text-[11px] uppercase tracking-wider flex items-center gap-1.5 mb-2.5">
@@ -335,7 +449,6 @@ export default function StartScreen({ onStart }: Props) {
         </div>
       </section>
 
-      {/* Discreto Citação */}
       <footer className="w-full text-center z-10 pt-1">
         <p className="text-white/20 italic text-[10px] max-w-md mx-auto px-4">{t.quote}</p>
       </footer>
@@ -346,8 +459,10 @@ export default function StartScreen({ onStart }: Props) {
           mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
         }
         .animate-scroll-infinite {
-          /* Largura de 4 blocos de 240px + 4 gaps de 16px (1024px no total). Ajusta perfeitamente via CSS nativo */
-          animation: translateLoop 22s infinite linear;
+          animation: translateLoop 26s infinite linear;
+        }
+        .animate-scroll-slow {
+          animation: translateLoop 48s infinite linear;
         }
         @keyframes translateLoop {
           0% { transform: translate3d(0, 0, 0); }
