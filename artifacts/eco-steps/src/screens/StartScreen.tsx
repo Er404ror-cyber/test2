@@ -72,15 +72,6 @@ const QUIZ_QUESTIONS = {
       level: "Fácil",
       consequence: "Os plásticos nunca desaparecem; quebram-se em partículas invisíveis (microplásticos). Os peixes comem essas partículas e, eventualmente, elas chegam ao nosso prato, prejudicando a saúde humana.",
       solution: "Recusar plásticos de uso único, recolher resíduos quando visita a praia e apoiar iniciativas de economia circular que recolhem lixo urbano."
-    },
-    {
-      q: "Qual é o maior desafio ambiental associado a lixeiras a céu aberto, como a antiga Lixeira de Hulene?",
-      options: ["Poluição visual apenas", "Contaminação de águas subterrâneas e libertação de gás metano", "Atração de aves migratórias benéficas"],
-      correct: 1,
-      category: "🚨 CRISE URBANA",
-      level: "Difícil",
-      consequence: "O lixo em decomposição produz 'lixiviado' (um líquido altamente tóxico) que se infiltra nos lençóis freáticos, contaminando a água consumida pelas comunidades ao redor, além de causar incêndios espontâneos devido ao metano.",
-      solution: "Exigir e apoiar a transição para aterros sanitários controlados e praticar a separação na fonte (compostagem orgânica e reciclagem) para reduzir o volume de resíduos."
     }
   ],
   en: [
@@ -92,24 +83,6 @@ const QUIZ_QUESTIONS = {
       level: "Easy",
       consequence: "Continued reliance on fossil fuels drives climate change, causing increasingly intense and frequent cyclones across the Mozambique Channel.",
       solution: "Promote off-grid rural solar systems. Mozambique has some of the highest solar radiation levels in Southern Africa, perfect for sustainable development."
-    },
-    {
-      q: "Why are the mangrove forests along the Mozambican coastline considered vital ecosystems?",
-      options: ["They are only useful for timber extraction", "They guard against coastal erosion and buffer cyclone impacts", "They block commercial shipping lanes"],
-      correct: 1,
-      category: "🌿 BIODIVERSITY",
-      level: "Medium",
-      consequence: "Destroying mangroves leaves vulnerable coastal settlements completely exposed to devastating storm surges and extreme sea-level rise.",
-      solution: "Support local coastal restoration campaigns (such as BIOFUND initiatives) and strictly prevent the clearing of mangrove woods for charcoal production."
-    },
-    {
-      q: "What happens when plastic is incorrectly discarded on our beaches?",
-      options: ["It decomposes within days", "It provides nutrients to seabed", "It breaks into microplastics that contaminate fish"],
-      correct: 2,
-      category: "♻️ WASTE MANAGEMENT",
-      level: "Easy",
-      consequence: "Plastics never fully degrade; they break into microscopic pieces. Marine life ingests these microplastics, introducing hazardous toxic compounds into the human food chain.",
-      solution: "Minimize single-use plastics, join community beach cleanups, and champion sustainable waste collection networks."
     }
   ]
 };
@@ -120,12 +93,14 @@ export default function StartScreen({ onStart }: Props) {
   const [showerTime, setShowerTime] = useState<number | "">("");
   const [currentInsightIdx, setCurrentInsightIdx] = useState(0);
   
-  // Estados do Quiz Dinâmico Expandido
   const [quizIdx, setQuizIdx] = useState(0);
   const [selectedAns, setSelectedAns] = useState<number | null>(null);
   const [showQuizFact, setShowQuizFact] = useState(false);
 
-  const [isInteracting, setIsInteracting] = useState(false);
+  // Referência para o container de scroll nativo estável
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [isUserScrolling, setIsUserScrolling] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const t = TRANSLATIONS[lang];
   const canPlay = name.trim().length >= 2;
@@ -141,6 +116,45 @@ export default function StartScreen({ onStart }: Props) {
     }, 6500);
     return () => clearInterval(interval);
   }, [lang]);
+
+  // Efeito de Autoscroll Seguro e Fluido (Não intrusivo)
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const autoScroll = setInterval(() => {
+      // Só avança se o utilizador não estiver ativamente a mexer ou a ver de perto
+      if (isUserScrolling) return;
+
+      const maxScroll = container.scrollWidth - container.clientWidth;
+      if (container.scrollLeft >= maxScroll - 10) {
+        container.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        container.scrollBy({ left: 240, behavior: "smooth" });
+      }
+    }, 5000);
+
+    return () => clearInterval(autoScroll);
+  }, [isUserScrolling]);
+
+  // Deteta interações para pausar o motor automático imediatamente
+  const handleUserInteraction = () => {
+    setIsUserScrolling(true);
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    
+    // Devolve o controlo ao motor automático após 8 segundos de inatividade completa
+    timeoutRef.current = setTimeout(() => {
+      setIsUserScrolling(false);
+    }, 8000);
+  };
+
+  const scrollManual = (direction: "left" | "right") => {
+    handleUserInteraction();
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    const offset = direction === "left" ? -280 : 280;
+    container.scrollBy({ left: offset, behavior: "smooth" });
+  };
 
   const showerFeedback = useMemo(() => {
     if (showerTime === "") return "";
@@ -197,7 +211,7 @@ export default function StartScreen({ onStart }: Props) {
         </div>
       </header>
 
-      {/* ── SEÇÃO DE DICAS DIÁRIAS MELHORADAS ── */}
+      {/* ── SEÇÃO DE DICAS DIÁRIAS ── */}
       <div className="w-full max-w-5xl mx-auto z-10 animate-fade-in">
         <div className="bg-emerald-500/10 border border-emerald-500/25 rounded-xl p-3.5 backdrop-blur-md flex flex-row items-center gap-3 shadow-xs">
           <div className="bg-emerald-400 text-slate-950 text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0">
@@ -272,8 +286,8 @@ export default function StartScreen({ onStart }: Props) {
         </section>
       </main>
 
-      {/* ── SECÇÃO: IMAGENS MAIORES COM AUTO-SCROLL INTERATIVO (INTELIGENTE) ── */}
-      <section className="w-full max-w-5xl mx-auto z-10 border-t border-white/10 pt-4 relative overflow-hidden">
+      {/* ── SECÇÃO: NOVO SCROLL HORIZONTAL SUPER SEGURO (MÓVEL & PC) ── */}
+      <section className="w-full max-w-5xl mx-auto z-10 border-t border-white/10 pt-4 relative group">
         <div className="flex items-center gap-1.5 mb-3 px-1 justify-between">
           <div className="flex items-center gap-1.5">
             <span className="text-xs">🇲🇿</span>
@@ -281,43 +295,40 @@ export default function StartScreen({ onStart }: Props) {
               {lang === "pt" ? "Evidências Ambientais em Moçambique" : "Environmental Evidence in Mozambique"}
             </h3>
           </div>
-          {isInteracting && (
-            <span className="text-[9px] text-amber-400 font-black tracking-wider uppercase animate-pulse bg-amber-950/40 px-2 py-0.5 rounded border border-amber-500/20">
-              {lang === "pt" ? "⏸️ Pausa Tátil Ativa" : "⏸️ Touch Pause Active"}
-            </span>
-          )}
+          
+          {/* Setas de Apoio Visuais (Excelentes para computadores/ratos) */}
+          <div className="hidden md:flex gap-1">
+            <button onClick={() => scrollManual("left")} className="p-1.5 rounded-md bg-black/40 border border-white/10 text-white text-xs hover:border-emerald-400 transition-colors cursor-pointer">◀</button>
+            <button onClick={() => scrollManual("right")} className="p-1.5 rounded-md bg-black/40 border border-white/10 text-white text-xs hover:border-emerald-400 transition-colors cursor-pointer">▶</button>
+          </div>
         </div>
 
-        <div className="w-full overflow-hidden relative mask-edges py-1"
-          onMouseEnter={() => setIsInteracting(true)}
-          onMouseLeave={() => setIsInteracting(false)}
-          onTouchStart={() => setIsInteracting(true)}
-          onTouchEnd={() => setIsInteracting(false)}
-        >
-          <div className={`flex gap-4 w-max transform-gpu will-change-transform ${isInteracting ? "animate-scroll-slow" : "animate-scroll-infinite"}`}>
+        {/* Ecrã de Visualização Nativa Flexível - Anti-Bugs */}
+        <div className="w-full relative mask-edges">
+          <div 
+            ref={scrollContainerRef}
+            onScroll={handleUserInteraction}
+            onTouchStart={handleUserInteraction}
+            className="w-full flex gap-4 overflow-x-auto snap-x mandatory scroll-smooth py-1 hide-scrollbar"
+            style={{ WebkitOverflowScrolling: "touch" }}
+          >
             {blogPosts.map((post, idx) => (
-              <a key={`orig-${idx}`} href={post.url} target="_blank" rel="noopener noreferrer"
-                className="w-[260px] md:w-[300px] shrink-0 bg-black/30 border border-white/5 rounded-xl overflow-hidden flex flex-col group hover:border-emerald-500/40 transition-all duration-300 transform-gpu">
+              <a 
+                key={idx} 
+                href={post.url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-[260px] md:w-[290px] shrink-0 snap-start bg-black/40 border border-white/10 rounded-xl overflow-hidden flex flex-col group hover:border-emerald-500/50 transition-all duration-300 transform-gpu"
+              >
                 <div className="w-full h-36 overflow-hidden relative">
-                  <div className="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105 transform-gpu" style={{ backgroundImage: `url(${post.img})` }} />
+                  <div className="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-103 transform-gpu" style={{ backgroundImage: `url(${post.img})` }} />
                   <span className="absolute top-2 left-2 bg-slate-950/95 font-black text-[8px] tracking-wider px-2 py-0.5 rounded-md text-emerald-400 border border-white/5">{post.tag}</span>
                 </div>
-                <div className="p-3.5 flex flex-col justify-between flex-grow gap-2.5 bg-gradient-to-b from-transparent to-black/20">
+                <div className="p-3.5 flex flex-col justify-between flex-grow gap-2.5 bg-gradient-to-b from-transparent to-black/30">
                   <h4 className="text-white font-bold text-xs tracking-tight leading-snug line-clamp-2 group-hover:text-emerald-300 transition-colors">{post.title}</h4>
-                  <span className="text-emerald-400 font-black text-[8px] uppercase tracking-wider flex items-center gap-1">{lang === "pt" ? "Ver notícia ➔" : "Read post ➔"}</span>
-                </div>
-              </a>
-            ))}
-            {blogPosts.map((post, idx) => (
-              <a key={`clon-${idx}`} href={post.url} target="_blank" rel="noopener noreferrer"
-                className="w-[260px] md:w-[300px] shrink-0 bg-black/30 border border-white/5 rounded-xl overflow-hidden flex flex-col group hover:border-emerald-500/40 transition-all duration-300 transform-gpu">
-                <div className="w-full h-36 overflow-hidden relative">
-                  <div className="w-full h-full bg-cover bg-center transform-gpu" style={{ backgroundImage: `url(${post.img})` }} />
-                  <span className="absolute top-2 left-2 bg-slate-950/95 font-black text-[8px] tracking-wider px-2 py-0.5 rounded-md text-emerald-400 border border-white/5">{post.tag}</span>
-                </div>
-                <div className="p-3.5 flex flex-col justify-between flex-grow gap-2.5 bg-gradient-to-b from-transparent to-black/20">
-                  <h4 className="text-white font-bold text-xs tracking-tight leading-snug line-clamp-2">{post.title}</h4>
-                  <span className="text-emerald-400 font-black text-[8px] uppercase tracking-wider flex items-center gap-1">{lang === "pt" ? "Ver notícia ➔" : "Read post ➔"}</span>
+                  <span className="text-emerald-400 font-black text-[8px] uppercase tracking-wider flex items-center gap-1">
+                    {lang === "pt" ? "Ver notícia ➔" : "Read post ➔"}
+                  </span>
                 </div>
               </a>
             ))}
@@ -325,11 +336,10 @@ export default function StartScreen({ onStart }: Props) {
         </div>
       </section>
 
-      {/* ── SECÇÃO: ECO-QUIZ ALTAMENTE INFORMATIVO & EXTENDIDO ── */}
+      {/* ── SECÇÃO: ECO-QUIZ INFORMATIVO ── */}
       <section className="w-full max-w-5xl mx-auto z-10 border-t border-white/10 pt-4 animate-fade-in">
         <div className="bg-gradient-to-b from-black/40 to-black/10 border border-white/5 rounded-xl p-4.5 backdrop-blur-md relative overflow-hidden">
           
-          {/* Cabeçalho do Quiz com Metadados Ricos */}
           <div className="flex flex-wrap justify-between items-center gap-2 mb-3.5 relative z-10">
             <div className="flex items-center gap-2">
               <span className="bg-emerald-400/20 text-emerald-300 border border-emerald-500/30 text-[9px] font-black px-2 py-0.5 rounded-md tracking-wider uppercase">
@@ -351,7 +361,6 @@ export default function StartScreen({ onStart }: Props) {
             <p className="text-white text-xs md:text-sm font-bold leading-relaxed">{activeQuiz.q}</p>
           </div>
 
-          {/* Opções de Resposta Alternativas */}
           <div className="grid grid-cols-1 gap-2 relative z-10">
             {activeQuiz.options.map((opt, oIdx) => {
               const isSelected = selectedAns === oIdx;
@@ -362,7 +371,7 @@ export default function StartScreen({ onStart }: Props) {
 
               if (selectedAns !== null) {
                 if (isCorrect) {
-                  btnStyle = "bg-emerald-500/15 border-emerald-500 text-emerald-300 font-bold shadow-md shadow-emerald-950/40";
+                  btnStyle = "bg-emerald-500/15 border-emerald-500 text-emerald-300 font-bold shadow-md";
                   icon = "🎉";
                 } else if (isSelected) {
                   btnStyle = "bg-red-500/15 border-red-500 text-red-300 opacity-90";
@@ -383,10 +392,8 @@ export default function StartScreen({ onStart }: Props) {
             })}
           </div>
 
-          {/* Dossiê de Informações pós-resposta */}
           {showQuizFact && (
             <div className="mt-4 p-4 bg-slate-900/95 border border-white/10 rounded-xl animate-fade-in flex flex-col gap-3.5 shadow-2xl relative z-10">
-              
               <div className="flex items-center gap-2 border-b border-white/10 pb-2">
                 <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded shadow-sm ${
                   selectedAns === activeQuiz.correct ? "bg-emerald-500 text-slate-950" : "bg-red-500 text-white"
@@ -396,7 +403,6 @@ export default function StartScreen({ onStart }: Props) {
                 <span className="text-white/40 text-[10px] font-medium">{lang === "pt" ? "Dossiê de Impacto Ambiental" : "Environmental Impact Dossier"}</span>
               </div>
 
-              {/* Grid de Informação Rica Split */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                 <div className="bg-red-500/5 border border-red-500/15 p-3 rounded-lg flex flex-col gap-1">
                   <span className="text-[9px] font-black tracking-wider text-red-400 uppercase">⚠️ {lang === "pt" ? "Consequência Real" : "Real Consequence"}</span>
@@ -418,7 +424,7 @@ export default function StartScreen({ onStart }: Props) {
         </div>
       </section>
 
-      {/* ── ECO-CHECK DO CHUVEIRO NA BASE ── */}
+      {/* ── ECO-CHECK DO CHUVEIRO ── */}
       <section className="w-full max-w-5xl mx-auto z-10 border-t border-white/10 pt-4 animate-fade-in">
         <div className="w-full bg-black/20 border border-white/5 rounded-xl p-4 backdrop-blur-md">
           <h4 className="text-white font-black text-[11px] uppercase tracking-wider flex items-center gap-1.5 mb-2.5">
@@ -429,7 +435,6 @@ export default function StartScreen({ onStart }: Props) {
               <label className="text-white/80 text-xs font-medium">
                 {lang === "pt" ? "Quantos minutos demorou o teu banho hoje?" : "How many minutes was your shower today?"}
               </label>
-              <p className="text-white/40 text-[10px]">{lang === "pt" ? "Introduz o valor para testar o teu consumo automático" : "Enter values to evaluate your impact metrics"}</p>
             </div>
             <div className="flex flex-col gap-1.5 w-full">
               <input
@@ -455,18 +460,15 @@ export default function StartScreen({ onStart }: Props) {
 
       <style>{`
         .mask-edges {
-          -webkit-mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
-          mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
+          -webkit-mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
+          mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
         }
-        .animate-scroll-infinite {
-          animation: translateLoop 26s infinite linear;
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
         }
-        .animate-scroll-slow {
-          animation: translateLoop 48s infinite linear;
-        }
-        @keyframes translateLoop {
-          0% { transform: translate3d(0, 0, 0); }
-          100% { transform: translate3d(calc(-50% - 8px), 0, 0); }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
         }
         @keyframes fadeIn {
           from { opacity: 0; transform: translate3d(0, 3px, 0); }
