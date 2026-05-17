@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { TRASH_ITEMS, TrashItem } from "@/data/game-data";
 import { Lang, TRANSLATIONS } from "@/i18n",
 
