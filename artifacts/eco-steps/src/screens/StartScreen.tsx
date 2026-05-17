@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { Lang, TRANSLATIONS } from "@/i18n";
 
 interface Props {
@@ -29,7 +29,6 @@ const ECO_INSIGHTS = {
   ]
 };
 
-// Dados verídicos baseados em iniciativas e portais reais de Moçambique
 const MOZ_BLOG_POSTS = {
   pt: [
     { title: "Conselho Municipal de Maputo avança com o plano estratégico para o encerramento seguro da Lixeira de Hulene", tag: "♻️ GESTÃO DE RESÍDUOS", img: "https://images.unsplash.com/photo-1611284446314-60a58ac0deb9?auto=format&fit=crop&w=600&q=80", url: "https://www.diarioeconomico.co.mz/" },
@@ -40,7 +39,7 @@ const MOZ_BLOG_POSTS = {
   en: [
     { title: "Maputo Municipality advances strategic plan for the safe decommissioning of the Hulene landfill", tag: "♻️ WASTE MANAGEMENT", img: "https://images.unsplash.com/photo-1611284446314-60a58ac0deb9?auto=format&fit=crop&w=600&q=80", url: "https://www.diarioeconomico.co.mz/" },
     { title: "FUNAE expands rural electrification in Nampula and Niassa using solar photovoltaic mini-grids", tag: "⚡ RENEWABLE ENERGY", img: "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=600&q=80", url: "https://www.funae.co.mz/" },
-    { title: "BIOFUND funds large-scale mangrove ecosystem restoration projects across coastal conservation areas", tag: "🌿 BIODIVERSITY", img: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=600&q=80", url: "https://www.biofund.org.mz/en/" },
+    { title: "BIOFUND funds large-scale mangrove ecosystem restoration projects across coastal conservation areas", tag: "🌿 BIODIVERSIDADE", img: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=600&q=80", url: "https://www.biofund.org.mz/en/" },
     { title: "Reinforcement of hydrographic basin monitoring systems along Umbeluzi and Incomati rivers", tag: "💧 CLIMATE ACTION", img: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=600&q=80", url: "https://www.jornalnoticias.co.mz/" }
   ]
 };
@@ -89,6 +88,11 @@ export default function StartScreen({ onStart }: Props) {
   const [selectedAns, setSelectedAns] = useState<number | null>(null);
   const [showQuizFact, setShowQuizFact] = useState(false);
 
+  // Referências para o controlo do Scroll Interativo e Inteligente
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const isUserInteracting = useRef(false);
+  const interactionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const t = TRANSLATIONS[lang];
   const canPlay = name.trim().length >= 2;
 
@@ -97,13 +101,54 @@ export default function StartScreen({ onStart }: Props) {
     onStart(name.trim(), lang);
   }, [name, lang, canPlay, onStart]);
 
-  // Rotação suave do texto de Dica no Topo
+  // Ciclo das dicas de topo
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentInsightIdx((prev) => (prev + 1) % ECO_INSIGHTS[lang].length);
     }, 6500);
     return () => clearInterval(interval);
   }, [lang]);
+
+  // Pausa temporária na rolagem automática ao detetar toque ou arrasto
+  const handleUserInteraction = useCallback(() => {
+    isUserInteracting.current = true;
+    
+    if (interactionTimeoutRef.current) {
+      clearTimeout(interactionTimeoutRef.current);
+    }
+
+    // Após 6 segundos sem mexer, devolve o controlo de rolagem ao sistema
+    interactionTimeoutRef.current = setTimeout(() => {
+      isUserInteracting.current = false;
+    }, 6000);
+  }, []);
+
+  // Motor de Autoscroll Otimizado (Não causa travamentos na renderização)
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const autoScrollEngine = () => {
+      if (isUserInteracting.current) return;
+
+      const cardWidth = 276; // 260px largura + 16px de gap
+      const maxScroll = container.scrollWidth - container.clientWidth;
+
+      // Se chegar perto do fim, faz o reset para o início, caso contrário avança um card
+      if (container.scrollLeft >= maxScroll - 10) {
+        container.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        container.scrollBy({ left: cardWidth, behavior: "smooth" });
+      }
+    };
+
+    const interval = setInterval(autoScrollEngine, 3500);
+
+    return () => {
+      clearInterval(interval);
+      if (interactionTimeoutRef.current) clearTimeout(interactionTimeoutRef.current);
+    };
+  }, []);
 
   const showerFeedback = useMemo(() => {
     if (showerTime === "") return "";
@@ -132,7 +177,7 @@ export default function StartScreen({ onStart }: Props) {
   return (
     <div className="w-full min-h-screen relative overflow-x-hidden overflow-y-auto px-4 py-5 md:px-10 md:py-8 select-none bg-slate-950 flex flex-col justify-between gap-6" style={{ fontFamily: "Outfit, sans-serif" }}>
       
-      {/* Background de Alta Performance (Força aceleração 3D) */}
+      {/* Background Otimizado transform-gpu */}
       <div className="absolute inset-0 z-0 pointer-events-none transform-gpu"
         style={{ background: "linear-gradient(135deg, #022c22 0%, #064e3b 50%, #0b6656 100%)" }} />
 
@@ -231,7 +276,7 @@ export default function StartScreen({ onStart }: Props) {
         </section>
       </main>
 
-      {/* ── SECÇÃO: MARQUEE INFINITO E ULTRA-LEVE (NOTÍCIAS REAIS DE MOÇAMBIQUE) ── */}
+      {/* ── SECÇÃO: CARROSSEL INTERATIVO PROTEGIDO (RECONHECE SCROLL MANUAL E TOQUE) ── */}
       <section className="w-full max-w-5xl mx-auto z-10 border-t border-white/10 pt-4 relative">
         <div className="flex items-center gap-1.5 mb-3 px-1">
           <span className="text-xs">🇲🇿</span>
@@ -240,54 +285,35 @@ export default function StartScreen({ onStart }: Props) {
           </h3>
         </div>
 
-        {/* Contentor do Marquee com efeito Fade nas bordas */}
-        <div className="w-full overflow-hidden relative mask-edges py-1">
-          <div className="flex w-max gap-4 animate-marquee transform-gpu hover:[animation-play-state:paused]">
-            
-            {/* Bloco Primário de Cards */}
+        <div className="w-full relative mask-edges">
+          <div 
+            ref={scrollContainerRef}
+            onWheel={handleUserInteraction}
+            onTouchStart={handleUserInteraction}
+            onMouseDown={handleUserInteraction}
+            className="w-full flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth py-1 hide-scrollbar"
+            style={{ WebkitOverflowScrolling: "touch" }}
+          >
             {blogPosts.map((post, idx) => (
               <a 
-                key={`p1-${idx}`} 
+                key={idx} 
                 href={post.url} 
                 target="_blank" 
-                rel="noopener noreferrer"
-                className="w-[260px] shrink-0 bg-black/40 border border-white/10 rounded-xl overflow-hidden flex flex-col group hover:border-emerald-500/50 transition-colors duration-300"
+                rel="noopener noreferrer" // Proteção de segurança ao abrir noutra tab
+                className="w-[260px] shrink-0 snap-start bg-black/40 border border-white/10 rounded-xl overflow-hidden flex flex-col group hover:border-emerald-500/50 transition-colors duration-300"
               >
                 <div className="w-full h-32 overflow-hidden relative">
-                  <div className="w-full h-full bg-cover bg-center" style={{ backgroundImage: `url(${post.img})` }} />
+                  <div className="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105 transform-gpu" style={{ backgroundImage: `url(${post.img})` }} />
                   <span className="absolute top-2 left-2 bg-slate-950/95 font-black text-[8px] tracking-wider px-2 py-0.5 rounded-md text-emerald-400 border border-white/5">{post.tag}</span>
                 </div>
-                <div className="p-3.5 flex flex-col justify-between flex-grow gap-2">
+                <div className="p-3.5 flex flex-col justify-between flex-grow gap-2 bg-gradient-to-b from-transparent to-black/20">
                   <h4 className="text-white font-bold text-xs tracking-tight leading-snug line-clamp-2 group-hover:text-emerald-300 transition-colors">{post.title}</h4>
                   <span className="text-emerald-400 font-black text-[8px] uppercase tracking-wider flex items-center gap-1">
-                    {lang === "pt" ? "Ver notícia ➔" : "Read post ➔"}
+                    {lang === "pt" ? "Abrir em nova aba ➔" : "Open in new tab ➔"}
                   </span>
                 </div>
               </a>
             ))}
-
-            {/* Bloco Duplicado Idêntico (Garante o loop perfeito e infinito em CSS Puro) */}
-            {blogPosts.map((post, idx) => (
-              <a 
-                key={`p2-${idx}`} 
-                href={post.url} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="w-[260px] shrink-0 bg-black/40 border border-white/10 rounded-xl overflow-hidden flex flex-col group hover:border-emerald-500/50 transition-colors duration-300"
-              >
-                <div className="w-full h-32 overflow-hidden relative">
-                  <div className="w-full h-full bg-cover bg-center" style={{ backgroundImage: `url(${post.img})` }} />
-                  <span className="absolute top-2 left-2 bg-slate-950/95 font-black text-[8px] tracking-wider px-2 py-0.5 rounded-md text-emerald-400 border border-white/5">{post.tag}</span>
-                </div>
-                <div className="p-3.5 flex flex-col justify-between flex-grow gap-2">
-                  <h4 className="text-white font-bold text-xs tracking-tight leading-snug line-clamp-2 group-hover:text-emerald-300 transition-colors">{post.title}</h4>
-                  <span className="text-emerald-400 font-black text-[8px] uppercase tracking-wider flex items-center gap-1">
-                    {lang === "pt" ? "Ver notícia ➔" : "Read post ➔"}
-                  </span>
-                </div>
-              </a>
-            ))}
-
           </div>
         </div>
       </section>
@@ -413,24 +439,18 @@ export default function StartScreen({ onStart }: Props) {
         <p className="text-white/20 italic text-[10px] max-w-md mx-auto px-4">{t.quote}</p>
       </footer>
 
-      {/* Estilos CSS Otimizados de Baixo Custo de Hardware */}
       <style>{`
         .mask-edges {
-          -webkit-mask-image: linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%);
-          mask-image: linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%);
+          -webkit-mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
+          mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
         }
-        
-        /* Motor Marquee Nativo: Deslocamento horizontal contínuo por hardware (transform3d) */
-        @keyframes marquee {
-          0% { transform: translate3d(0, 0, 0); }
-          100% { transform: translate3d(calc(-50% - 8px), 0, 0); }
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
         }
-
-        .animate-marquee {
-          animation: marquee 24s linear infinite;
-          will-change: transform;
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
         }
-
         @keyframes fadeIn {
           from { opacity: 0; transform: translate3d(0, 4px, 0); }
           to { opacity: 1; transform: translate3d(0, 0, 0); }
