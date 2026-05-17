@@ -55,9 +55,14 @@ export default function TrashScene({ onComplete, totalPoints, lang }: Props) {
     if (feedback || !current || showSuccess) return;
     const ok = current.bin === binId;
     setThrowing(true); setActiveBin(binId);
+    
     setTimeout(()=>{
       setFeedback({ ok, msg: ok ? t.trashCorrect : t.trashWrong(t.bins[current.bin]) });
     }, 300);
+
+    // Se errar, dá mais tempo (5 segundos) para conseguir ler a explicação do erro
+    const delayTime = ok ? 1400 : 5000;
+
     setTimeout(()=>{
       const nc = correct + (ok?1:0);
       setFeedback(null); setThrowing(false); setActiveBin(null);
@@ -67,7 +72,7 @@ export default function TrashScene({ onComplete, totalPoints, lang }: Props) {
         const pts = Math.round((nc/items.length)*100);
         setTimeout(()=>onComplete(pts,t.trashScore(nc,items.length)),1800);
       } else { setCorrect(nc); setIdx(ni); }
-    }, 1400);
+    }, delayTime);
   };
 
   return (
@@ -110,7 +115,7 @@ export default function TrashScene({ onComplete, totalPoints, lang }: Props) {
         </motion.div>
 
         <AnimatePresence mode="wait">
-          {current && (
+          {current && !feedback && (
             <motion.div key={current.id}
               initial={{scale:0,rotate:-10}}
               animate={throwing?{scale:0.4,x:120,y:40,rotate:20,opacity:0}:{scale:1,rotate:0,x:0,y:0,opacity:1}}
@@ -125,11 +130,29 @@ export default function TrashScene({ onComplete, totalPoints, lang }: Props) {
           )}
         </AnimatePresence>
 
+        {/* Sistema de Feedback Reforçado com Explicação Detalhada */}
         <AnimatePresence>
           {feedback && (
-            <motion.div initial={{scale:0,y:10}} animate={{scale:1,y:0}} exit={{scale:0,opacity:0}}
-              className={`absolute left-1/2 -translate-x-1/2 top-2 px-5 py-2 rounded-2xl font-black text-white text-sm shadow-xl z-40 ${feedback.ok?"bg-green-500":"bg-red-500"}`}>
-              {feedback.msg}
+            <motion.div 
+              initial={{scale:0.8,opacity:0,y:20}} 
+              animate={{scale:1,opacity:1,y:0}} 
+              exit={{scale:0.8,opacity:0}}
+              className="absolute left-4 right-4 md:left-1/2 md:-translate-x-1/2 top-4 md:max-w-md bg-white rounded-3xl p-4 shadow-2xl z-40 border-2 flex flex-col gap-2 items-center text-center"
+              style={{borderColor: feedback.ok ? "#22c55e" : "#ef4444"}}
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">{feedback.ok ? "🎯" : "💡"}</span>
+                <h4 className="font-black text-gray-800 text-sm md:text-base">
+                  {feedback.msg}
+                </h4>
+              </div>
+              
+              {/* Se o utilizador errar, injeta o porquê dinamicamente com base no idioma */}
+              {!feedback.ok && current?.explanation && (
+                <p className="text-gray-600 text-xs font-medium leading-relaxed border-t border-gray-100 pt-2 mt-1 animate-fade-in">
+                  {current.explanation[lang]}
+                </p>
+              )}
             </motion.div>
           )}
         </AnimatePresence>

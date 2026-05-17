@@ -12,7 +12,6 @@ const PARTICLES = [
   { e: "💧", x: 88, y: 70 },
 ];
 
-// Dicas diárias e Fatos sobre Animais sugeridos
 const ECO_INSIGHTS = {
   pt: [
     { type: "💡 DICA DO DIA", text: "Que tal limpar a praia ou o teu bairro hoje? Pequenos gestos mudam o ecossistema!" },
@@ -85,6 +84,37 @@ const MOZ_BLOG_POSTS = {
   ]
 };
 
+const QUIZ_QUESTIONS = {
+  pt: [
+    {
+      q: "Qual destas fontes de energia é renovável e muito abundante em Moçambique?",
+      options: ["Carvão Mineral", "Energia Solar Fotovoltaica", "Gás Natural"],
+      correct: 1,
+      fact: "Moçambique tem um enorme potencial solar, especialmente nas regiões centro e norte, crucial para a eletrificação rural de zonas isoladas."
+    },
+    {
+      q: "O que acontece quando descartamos plásticos de forma incorreta nas nossas praias?",
+      options: ["Decompõem-se em poucos dias", "Nutrem o solo marinho", "Fragmentam-se em microplásticos que contaminam os peixes"],
+      correct: 2,
+      fact: "Os plásticos nunca desaparecem por completo; quebram-se em partículas minúsculas que entram na cadeia alimentar marinha e humana."
+    }
+  ],
+  en: [
+    {
+      q: "Which of these energy sources is renewable and highly abundant in Mozambique?",
+      options: ["Mineral Coal", "Solar Photovoltaic Energy", "Natural Gas"],
+      correct: 1,
+      fact: "Mozambique possesses vast solar potential, particularly in central and northern regions, key for off-grid rural electrification."
+    },
+    {
+      q: "What happens when plastic is incorrectly discarded on our beaches?",
+      options: ["It decomposes within days", "It provides nutrients to seabed", "It breaks into microplastics that contaminate fish"],
+      correct: 2,
+      fact: "Plastics never fully vanish; they fragment into minute particles that invade the marine food web and eventually our meals."
+    }
+  ]
+};
+
 export default function StartScreen({ onStart }: Props) {
   const [lang, setLang] = useState<Lang>("pt");
   const [name, setName] = useState("");
@@ -92,6 +122,11 @@ export default function StartScreen({ onStart }: Props) {
   const [showerFeedback, setShowerFeedback] = useState("");
   const [currentInsightIdx, setCurrentInsightIdx] = useState(0);
   
+  // Estados do Quiz Local
+  const [quizIdx, setQuizIdx] = useState(0);
+  const [selectedAns, setSelectedAns] = useState<number | null>(null);
+  const [showQuizFact, setShowQuizFact] = useState(false);
+
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isInteractingRef = useRef(false);
 
@@ -103,15 +138,13 @@ export default function StartScreen({ onStart }: Props) {
     onStart(name.trim(), lang);
   };
 
-  // Carrossel automático para as dicas e fatos motivacionais
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentInsightIdx((prev) => (prev + 1) % ECO_INSIGHTS[lang].length);
-    }, 7000); // Muda a cada 7 segundos de forma suave
+    }, 7000);
     return () => clearInterval(interval);
   }, [lang]);
 
-  // Lógica interativa do banho (Feedback imediato)
   useEffect(() => {
     if (showerTime === "") {
       setShowerFeedback("");
@@ -127,7 +160,7 @@ export default function StartScreen({ onStart }: Props) {
     }
   }, [showerTime, lang]);
 
-  // Motor de Autoscroll para Notícias
+  // Autoscroll suave e adaptado
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
@@ -135,7 +168,7 @@ export default function StartScreen({ onStart }: Props) {
     let animationId: number;
     const scroll = () => {
       if (!isInteractingRef.current) {
-        container.scrollLeft += 0.8;
+        container.scrollLeft += 0.7;
         if (container.scrollLeft >= container.scrollWidth / 2) {
           container.scrollLeft = 0;
         }
@@ -147,8 +180,21 @@ export default function StartScreen({ onStart }: Props) {
     return () => cancelAnimationFrame(animationId);
   }, [lang]);
 
+  const handleAnswerQuiz = (optIdx: number) => {
+    if (selectedAns !== null) return;
+    setSelectedAns(optIdx);
+    setShowQuizFact(true);
+  };
+
+  const handleNextQuiz = () => {
+    setSelectedAns(null);
+    setShowQuizFact(false);
+    setQuizIdx((prev) => (prev + 1) % QUIZ_QUESTIONS[lang].length);
+  };
+
   const doublePosts = [...MOZ_BLOG_POSTS[lang], ...MOZ_BLOG_POSTS[lang]];
   const activeInsight = ECO_INSIGHTS[lang][currentInsightIdx];
+  const activeQuiz = QUIZ_QUESTIONS[lang][quizIdx];
 
   return (
     <div
@@ -190,7 +236,7 @@ export default function StartScreen({ onStart }: Props) {
           {(["pt", "en"] as Lang[]).map(l => (
             <button 
               key={l} 
-              onClick={() => { setLang(l); setShowerTime(""); }}
+              onClick={() => { setLang(l); setShowerTime(""); setSelectedAns(null); setShowQuizFact(false); setQuizIdx(0); }}
               className={`px-3 py-1 rounded-full font-black text-[11px] md:text-xs transition-all cursor-pointer ${
                 lang === l ? "bg-white text-slate-950 shadow-sm" : "text-white/60 hover:text-white"
               }`}
@@ -201,7 +247,7 @@ export default function StartScreen({ onStart }: Props) {
         </div>
       </header>
 
-      {/* ── SEÇÃO DE DICAS DIÁRIAS & MOTIVAÇÃO (DINÂMICA) ── */}
+      {/* ── SEÇÃO DE DICAS DIÁRIAS & MOTIVAÇÃO ── */}
       <div className="w-full max-w-5xl mx-auto z-10 animate-fade-in">
         <div className="bg-gradient-to-r from-emerald-500/20 to-teal-500/10 border border-emerald-500/30 rounded-2xl p-4 backdrop-blur-md flex flex-col sm:flex-row items-start sm:items-center gap-3 shadow-lg">
           <div className="bg-emerald-400 text-slate-950 text-[10px] font-black px-2 py-1 rounded-lg uppercase tracking-wider shrink-0">
@@ -252,7 +298,6 @@ export default function StartScreen({ onStart }: Props) {
 
         {/* Caixa de Entrada Direta + Eco-Check do Chuveiro */}
         <section className="lg:col-span-5 w-full flex flex-col gap-4">
-          {/* Formulário de Login Principal */}
           <div className="w-full bg-black/40 rounded-2xl p-5 flex flex-col justify-center gap-4 border border-white/10 shadow-xl backdrop-blur-md flex-grow">
             <div className="text-center">
               <span className="bg-emerald-400 text-slate-950 font-black text-[9px] tracking-widest uppercase rounded px-2 py-0.5 inline-block mb-1 shadow-sm">
@@ -290,7 +335,6 @@ export default function StartScreen({ onStart }: Props) {
             </button>
           </div>
 
-          {/* NOVO: Componente Interativo de Hábito Diário (Chuveiro) */}
           <div className="w-full bg-black/30 border border-white/5 rounded-2xl p-4 backdrop-blur-md">
             <h4 className="text-white font-black text-[11px] md:text-xs uppercase tracking-wider flex items-center gap-1.5 mb-2">
               <span>🚿</span> {lang === "pt" ? "Eco-Check Rápido" : "Quick Eco-Check"}
@@ -318,7 +362,7 @@ export default function StartScreen({ onStart }: Props) {
         </section>
       </main>
 
-      {/* ── SECÇÃO DE NOTÍCIAS REALISTAS ── */}
+      {/* ── SECÇÃO DE NOTÍCIAS COMPORTAMENTO MOBILE APERFEIÇOADO ── */}
       <section className="w-full max-w-5xl mx-auto z-10 border-t border-white/10 pt-4 relative overflow-hidden">
         <div className="flex items-center gap-1.5 mb-2.5 px-1 justify-between">
           <div className="flex items-center gap-1.5">
@@ -327,14 +371,15 @@ export default function StartScreen({ onStart }: Props) {
               {lang === "pt" ? "Evidências Ambientais em Moçambique" : "Environmental Evidence in Mozambique"}
             </h3>
           </div>
-          <span className="text-white/30 font-bold text-[9px] uppercase tracking-wider bg-white/5 px-2 py-0.5 rounded-md">
-            {lang === "pt" ? "Arraste livremente" : "Swipe & Control"}
+          <span className="text-white/30 font-bold text-[8px] md:text-[9px] uppercase tracking-wider bg-white/5 px-2 py-0.5 rounded-md">
+            {lang === "pt" ? "Arraste ou Aguarde" : "Swipe or Wait"}
           </span>
         </div>
 
+        {/* Adicionado snap-x nativo e touch handling refinado para mobile */}
         <div 
           ref={scrollContainerRef}
-          className="w-full overflow-x-auto pb-2 flex gap-4 custom-scrollbar-clean mask-edges snap-x md:snap-none"
+          className="w-full overflow-x-auto pb-2 flex gap-4 custom-scrollbar-clean mask-edges snap-x snap-mandatory scroll-smooth"
           onMouseEnter={() => { isInteractingRef.current = true; }}
           onMouseLeave={() => { isInteractingRef.current = false; }}
           onTouchStart={() => { isInteractingRef.current = true; }}
@@ -346,11 +391,11 @@ export default function StartScreen({ onStart }: Props) {
               href={post.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-[240px] md:w-[290px] shrink-0 bg-black/40 border border-white/5 rounded-xl overflow-hidden flex flex-col group hover:border-emerald-400/40 transition-colors snap-center"
+              className="w-[260px] md:w-[290px] shrink-0 bg-black/40 border border-white/5 rounded-xl overflow-hidden flex flex-col group hover:border-emerald-400/40 transition-colors snap-center"
             >
               <div className="w-full h-24 md:h-28 overflow-hidden relative">
                 <div 
-                  className="w-full h-full bg-cover bg-center"
+                  className="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
                   style={{ backgroundImage: `url(${post.img})` }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
@@ -363,12 +408,76 @@ export default function StartScreen({ onStart }: Props) {
                 <h4 className="text-white font-bold text-[11px] md:text-xs tracking-tight leading-snug line-clamp-2 group-hover:text-emerald-300 transition-colors">
                   {post.title}
                 </h4>
-                <span className="text-emerald-400 font-black text-[9px] uppercase tracking-wider">
+                <span className="text-emerald-400 font-black text-[9px] uppercase tracking-wider flex items-center gap-1">
                   {lang === "pt" ? "Visitar portal ➔" : "Visit portal ➔"}
                 </span>
               </div>
             </a>
           ))}
+        </div>
+      </section>
+
+      {/* ── NOVO: SECÇÃO ECO-QUIZ LOCALIZADA ABAIXO DO BLOG ── */}
+      <section className="w-full max-w-5xl mx-auto z-10 border-t border-white/10 pt-4 relative animate-fade-in">
+        <div className="bg-black/20 border border-white/5 rounded-2xl p-4 md:p-5 backdrop-blur-md">
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="text-white font-black text-xs md:text-sm uppercase tracking-wider flex items-center gap-1.5">
+              <span>🧠</span> {lang === "pt" ? "Eco-Quiz Conhecimento" : "Eco-Quiz Knowledge"}
+            </h3>
+            <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/20">
+              Q: {quizIdx + 1} / {QUIZ_QUESTIONS[lang].length}
+            </span>
+          </div>
+
+          <p className="text-white text-xs md:text-sm font-bold mb-3 leading-snug">
+            {activeQuiz.q}
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+            {activeQuiz.options.map((opt, oIdx) => {
+              let btnStyle = "bg-black/40 border-white/10 hover:border-emerald-500/40 text-white/90";
+              if (selectedAns !== null) {
+                if (oIdx === activeQuiz.correct) {
+                  btnStyle = "bg-emerald-500/20 border-emerald-500 text-emerald-300";
+                } else if (selectedAns === oIdx) {
+                  btnStyle = "bg-red-500/20 border-red-500 text-red-300";
+                } else {
+                  btnStyle = "bg-black/10 border-white/5 text-white/40 opacity-60";
+                }
+              }
+
+              return (
+                <button
+                  key={oIdx}
+                  disabled={selectedAns !== null}
+                  onClick={() => handleAnswerQuiz(oIdx)}
+                  className={`p-2.5 rounded-xl border text-left text-xs font-semibold transition-all transition-colors cursor-pointer ${btnStyle}`}
+                >
+                  {opt}
+                </button>
+              );
+            })}
+          </div>
+
+          {showQuizFact && (
+            <div className="mt-3 p-3 bg-slate-900/80 border border-white/10 rounded-xl animate-fade-in flex flex-col gap-2">
+              <p className="text-[11px] md:text-xs text-white/90 leading-relaxed">
+                <span className="font-black text-emerald-400 uppercase tracking-wider mr-1 block sm:inline">
+                  {selectedAns === activeQuiz.correct 
+                    ? (lang === "pt" ? "🎯 Certíssimo!" : "🎯 Spot on!") 
+                    : (lang === "pt" ? "💡 Sabias que?" : "💡 Did you know?")
+                  }
+                </span> 
+                {activeQuiz.fact}
+              </p>
+              <button
+                onClick={handleNextQuiz}
+                className="self-end bg-white text-slate-950 font-black text-[10px] uppercase tracking-wider px-3 py-1 rounded-lg hover:bg-emerald-400 transition-colors cursor-pointer"
+              >
+                {lang === "pt" ? "Próxima Pergunta ➔" : "Next Question ➔"}
+              </button>
+            </div>
+          )}
         </div>
       </section>
 
